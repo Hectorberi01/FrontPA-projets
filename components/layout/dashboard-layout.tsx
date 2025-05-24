@@ -68,7 +68,7 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
     { href: "/dashboard", icon: <Home size={20} />, label: "Tableau de bord" },
     ...(userRole === "enseignant" ? [{ href: "/promotions", icon: <Users size={20} />, label: "Promotions" }] : []),
     { href: "/projets", icon: <BookOpen size={20} />, label: "Projets" },
-    { href: "/groupes", icon: <Users size={20} />, label: "Groupes" },
+    // { href: "/groupes", icon: <Users size={20} />, label: "Groupes" },
     { href: "/livrables", icon: <ClipboardList size={20} />, label: "Livrables" },
     { href: "/rapports", icon: <FileText size={20} />, label: "Rapports" },
     ...(userRole === "enseignant"

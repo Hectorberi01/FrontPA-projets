@@ -45,10 +45,10 @@ export default function PromotionsPage() {
             <p className="text-gray-600 mt-1">Gérez toutes vos promotions</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Importer
-            </Button>
+            {/*<Button variant="outline" className="flex items-center gap-2">*/}
+            {/*  <Upload className="h-4 w-4" />*/}
+            {/*  Importer*/}
+            {/*</Button>*/}
             <Button asChild>
               <Link href="/promotions/nouvelle">
                 <Plus className="mr-2 h-4 w-4" />
@@ -83,10 +83,10 @@ export default function PromotionsPage() {
                     <DropdownMenuItem>2020-2021</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline">
-                  <Download size={16} className="mr-2" />
-                  Exporter
-                </Button>
+                {/*<Button variant="outline">*/}
+                {/*  <Download size={16} className="mr-2" />*/}
+                {/*  Exporter*/}
+                {/*</Button>*/}
               </div>
             </div>
 
