@@ -8,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { BookOpen, Download, Eye, Filter, MoreHorizontal, Plus, Search, Trash, Upload, Users } from "lucide-react"
 import Link from "next/link"
-import { Promotion, PromotionWithDetails } from "@/lib/types/promotion"
 import { use, useEffect, useState } from "react"
 import { getPromotions } from "@/lib/services/promotionService"
 
@@ -140,12 +139,12 @@ export default function PromotionsPage() {
                                 Voir détails
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/promotions/${promotion.id}/etudiants`} className="flex items-center">
-                                <Users size={16} className="mr-2" />
-                                Gérer les étudiants
-                              </Link>
-                            </DropdownMenuItem>
+                            {/*<DropdownMenuItem asChild>*/}
+                            {/*  <Link href={`/promotions/${promotion.id}/etudiants`} className="flex items-center">*/}
+                            {/*    <Users size={16} className="mr-2" />*/}
+                            {/*    Gérer les étudiants*/}
+                            {/*  </Link>*/}
+                            {/*</DropdownMenuItem>*/}
                             <DropdownMenuItem className="text-red-600 flex items-center">
                               <Trash size={16} className="mr-2" />
                               Supprimer

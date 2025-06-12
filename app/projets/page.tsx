@@ -11,7 +11,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getPromotions } from "@/lib/services/promotionService"
 import { PromotionWithDetails } from "@/lib/types/promotion"
-import {deleteProjectAPI, fetchProjects} from "@/lib/services/project";
+import {DeleteProject, fetchProjects} from "@/lib/services/project";
 import {Project} from "@/lib/types/projet";
 
 export default function ProjetsPage() {
@@ -52,7 +52,7 @@ export default function ProjetsPage() {
     if (!confirmDelete) return;
 
     try {
-      const result = await deleteProjectAPI(id);
+      const result = await DeleteProject(id);
 
       if (result.success) {
         alert("Projet supprimé avec succès !");

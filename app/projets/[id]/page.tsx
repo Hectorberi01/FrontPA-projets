@@ -1,8 +1,13 @@
 import ProjetDetailPage from "@/app/projets/[id]/details/ProjetDetailPage";
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
-  const id = {params}
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+export default async function ProjectPage({ params }: PageProps) {
+  const { id } =  await params;
   return (
-      <ProjetDetailPage projectId={params.id} />
+      <ProjetDetailPage projectId={id} />
   )
 }
