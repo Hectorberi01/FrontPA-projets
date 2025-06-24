@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FaGoogle, FaMicrosoft } from "react-icons/fa"
+import {login} from "@/lib/services/auth";
 
 declare global {
   interface Window {
@@ -35,9 +36,29 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
+    const data = {
+      email,
+      password,
+    }
+    try {
+      const response = await login(data)
+      if (response){
+        const userStr = localStorage.getItem("user");
+        console.log("userStr", userStr)
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.user.role.name === "Teacher") {
+            router.push("/dashboard");
+          } else if (user.user.role.name === "student") {
+            router.push("/student/projets");
+          }
+        }
+      }
+    }catch (error) {
+      console.error(error)
+    }
     // Simulation d'authentification
-    setTimeout(() => {
+    /*setTimeout(() => {
       setIsLoading(false)
       // Redirection vers le dashboard ou l'interface étudiant selon le rôle
       if (userRole === "enseignant") {
@@ -45,7 +66,7 @@ export function LoginForm() {
       } else {
         router.push("/student/projets")
       }
-    }, 1500)
+    }, 1500)*/
   }
 
   const handleOAuthLogin = (provider: string) => {

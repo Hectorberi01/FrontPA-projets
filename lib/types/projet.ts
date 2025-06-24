@@ -14,6 +14,7 @@ export interface Project {
   name: string;
   description: string;
   soutenanceDate: string | null;
+  soutenanceDuration: string | null;
   minStudents: number;
   maxStudents: number;
   mode: 'manual' | 'random' | 'free';

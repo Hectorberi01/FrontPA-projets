@@ -19,7 +19,7 @@ export async function fetchProjects(): Promise<Project[]> {
     }
 }
 
-export async function createProject(project: CreateProject) {
+export async function createProject(project: any) {
     try {
         const response = await fetch(`${BASE_URL}`, {
             method: 'POST',

@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React, {useEffect} from "react"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -48,15 +48,29 @@ interface StudentLayoutProps {
 export function StudentLayout({ children }: StudentLayoutProps) {
   const pathname = usePathname()
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-
+  const [user, setUser] = useState<any | null>(null)
   const closeMobileNav = () => setIsMobileNavOpen(false)
 
   const navItems = [
     { href: "/student/projets", icon: <BookOpen size={20} />, label: "Mes projets" },
-    { href: "/student/groupes", icon: <Users size={20} />, label: "Mes groupes" },
+    // { href: "/student/groupes", icon: <Users size={20} />, label: "Mes groupes" },
     { href: "/student/livrables", icon: <ClipboardList size={20} />, label: "Livrables" },
     { href: "/student/rapports", icon: <FileText size={20} />, label: "Rapports" },
   ]
+
+  useEffect(() => {
+    const getUser = async () => {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        console.log("user", user);
+        setUser(user);
+      }
+    };
+
+    getUser();
+  }, [])
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,7 +118,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                     <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Avatar" />
                     <AvatarFallback>ET</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline">Martin Dupont</span>
+                  <span className="hidden md:inline">{user?.user.username}</span>
                   <ChevronDown size={16} />
                 </Button>
               </DropdownMenuTrigger>

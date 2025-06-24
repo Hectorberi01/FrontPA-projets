@@ -91,6 +91,21 @@ export async function getPromotionById(id: number) {
     }
 }
 
+export async function getPromotionByStudentId(id: number) {
+    const response = await fetch(`${PROMOTION_SERVER_URL}/students/${id}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+    if (response.status != 200) {
+        throw new Error(`Error: ${response.statusText}`);
+    }
+    if(response.status === 200){
+        return response.json();
+    }
+}
+
 export async function getProjectByPromotionId(id: number) {
     console.log(`${process.env.NEXT_PUBLIC_PROJET_URL}/${id}/promtion`)
     try {

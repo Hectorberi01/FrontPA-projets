@@ -8,6 +8,9 @@ import { ArrowLeft, Calendar, ClipboardList, Edit, FileText, Users, Plus } from 
 import Link from "next/link"
 import { use, useEffect, useState } from "react"
 import {getProjectById} from "@/lib/services/project";
+import {similarityCheck} from "@/lib/services/livrables";
+import Swal from 'sweetalert2'
+import {generateSoutenanceSchedule} from "@/lib/services/soutenance";
 
 interface ProjectDetailsPageProps {
     projectId: string;
@@ -27,6 +30,45 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
 
         if (projectId) fetchProject()
     }, [projectId])
+
+    const handleRunSimilarityCheck = async () => {
+        try {
+            const response = await similarityCheck(parseInt(projectId))
+            if(response){
+                Swal.fire({
+                    title: "Analyse fini avec success",
+                    icon: "success",
+                    draggable: true
+                });
+                window.location.reload()
+            }else {
+                Swal.fire({
+                    title: "errer",
+                    icon: "error",
+                    draggable: true
+                });
+                window.location.reload()
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erreur inattendue.");
+        }
+    };
+
+    const handleGenerateSoutenanceOrder = async () => {
+        try {
+            const res = await generateSoutenanceSchedule("")
+            if (res.ok) {
+                alert('Ordre de passage généré avec succès.');
+                // Optionnel : refetch ou recharger les données
+            } else {
+                alert("Erreur lors de la génération.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Erreur serveur.");
+        }
+    };
 
     return (
         <DashboardLayout>
@@ -129,11 +171,13 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                 </div>
 
                 <Tabs defaultValue="groupes" className="mt-8">
-                    <TabsList className="grid grid-cols-4 w-full max-w-2xl">
-                        <TabsTrigger value="groupes">Groupes</TabsTrigger>
-                        <TabsTrigger value="livrables">Livrables</TabsTrigger>
-                        <TabsTrigger value="rapports">Rapports</TabsTrigger>
-                        <TabsTrigger value="soutenances">Soutenances</TabsTrigger>
+                    <TabsList className="grid grid-cols-6 w-full max-w-2xl">
+                        <TabsTrigger value="groupes" className="w-full text-center">Groupes</TabsTrigger>
+                        <TabsTrigger value="livrables" className="w-full text-center">Livrables</TabsTrigger>
+                        <TabsTrigger value="rapports" className="w-full text-center">Rapports</TabsTrigger>
+                        <TabsTrigger value="soutenances" className="w-full text-center">Soutenances</TabsTrigger>
+                        <TabsTrigger value="ordre-passage" className="w-full text-center">Passage</TabsTrigger>
+                        <TabsTrigger value="section-triche" className="w-full text-center">Triche</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="groupes" className="mt-6">
@@ -277,9 +321,9 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                         </div>
 
                                         <div className="mt-6 flex justify-end gap-4">
-                                            <Button asChild>
-                                                <Link href={`/projets/${projets?.id}/soutenances/edit`}>Générer l'ordre de passage</Link>
-                                            </Button>
+                                            {/*<Button asChild>*/}
+                                            {/*    <Link href={`/projets/${projets?.id}/soutenances/edit`}>Générer l'ordre de passage</Link>*/}
+                                            {/*</Button>*/}
                                             <Button variant="outline" asChild>
                                                 <Link href={`/projets/${projets?.id}/soutenances/planning`}>Voir
                                                     planning</Link>
@@ -301,6 +345,131 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
 
                             </CardContent>
                         </Card>
+                    </TabsContent>
+                    <TabsContent value="ordre-passage" className="mt-6">
+                        <CardContent>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between">
+                                    <CardTitle className="text-sm font-medium text-gray-500">Order de passage</CardTitle>
+                                    <CardDescription>Ordre de passage pour la soutenance</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {projets?.soutenances && projets.soutenances.length > 0 ? (
+                                        <table className="w-full text-left border border-gray-300">
+                                            <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="p-2 border-b">Ordre</th>
+                                                <th className="p-2 border-b">Nom du groupe</th>
+                                                <th className="p-2 border-b">Début</th>
+                                                <th className="p-2 border-b">Fin</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {projets.soutenances
+                                                .sort((a:any, b:any) => a.order - b.order)
+                                                .map((soutenance:any, index:any) => {
+                                                    const group = projets?.groups.find((g:any) => g.id === soutenance.groupId);
+
+                                                    const formatTime = (iso: string) => {
+                                                        const date = new Date(iso);
+                                                        return date.toLocaleTimeString("fr-FR", {
+                                                            hour: "2-digit",
+                                                            minute: "2-digit",
+                                                        });
+                                                    };
+
+                                                    return (
+                                                        <tr key={index} className="border-t">
+                                                            <td className="p-2">{soutenance.order}</td>
+                                                            <td className="p-2">{group?.name ?? "Groupe inconnu"}</td>
+                                                            <td className="p-2">{formatTime(soutenance.startTime)}</td>
+                                                            <td className="p-2">{formatTime(soutenance.endTime)}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="text-center text-gray-500 py-6">
+                                            <p className="mb-4">Aucune soutenance prévue.</p>
+                                            <button
+                                                onClick={handleGenerateSoutenanceOrder}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                            >
+                                                Générer l’ordre de passage
+                                            </button>
+                                        </div>
+                                    )}
+                                </CardContent>
+
+                            </Card>
+                        </CardContent>
+                    </TabsContent>
+                    <TabsContent value="section-triche" className="mt-6">
+                        <CardContent>
+                            <Card>
+                            <CardHeader>
+                                    <CardTitle>Cohérence entre les livrables</CardTitle>
+                                    <CardDescription>
+                                        Vérifier s'il y a un groupe qui a copié sur un autre
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {(!projets?.similarity?.comparisons || projets.similarity.comparisons.length === 0) ? (
+                                        <div className="text-center py-6">
+                                            <p className="mb-4">Aucune comparaison n'a encore été effectuée.</p>
+                                            <button
+                                                onClick={handleRunSimilarityCheck}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                            >
+                                                Lancer l'analyse de similarité
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <table className="w-full text-left border border-gray-300">
+                                            <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="p-2 border-b">Groupe A</th>
+                                                <th className="p-2 border-b">Groupe B</th>
+                                                <th className="p-2 border-b">Score</th>
+                                                <th className="p-2 border-b">Suspect</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                {projets?.similarity.comparisons
+                                                    .filter((c:any, i:any, arr:any) => {
+                                                        // Supprime les doublons en combinant les deux IDs (peu importe l'ordre)
+                                                        const key = [c.deliverableA, c.deliverableB].sort().join("-");
+                                                        return i === arr.findIndex((item:any) => [item.deliverableA, item.deliverableB].sort().join("-") === key);
+                                                    })
+                                                    .map((comparison:any, index:any) => {
+                                                        const findGroupName = (deliverableId: number) => {
+                                                            const livrable = projets?.livrables.find((l:any) => l.id === deliverableId);
+                                                            const group = projets?.groups.find((g:any) => g.id === livrable?.groupId);
+                                                            return group?.name || `Groupe inconnu`;
+                                                        };
+
+                                                        return (
+                                                            <tr key={index} className="border-t">
+                                                                <td className="p-2">{findGroupName(comparison.deliverableA)}</td>
+                                                                <td className="p-2">{findGroupName(comparison.deliverableB)}</td>
+                                                                <td className="p-2">{comparison.score}</td>
+                                                                <td className="p-2">
+                                                                    {comparison.isSuspected ? (
+                                                                        <span className="text-red-600 font-semibold">Oui</span>
+                                                                    ) : (
+                                                                        "Non"
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </CardContent>
                     </TabsContent>
                 </Tabs>
             </div>
