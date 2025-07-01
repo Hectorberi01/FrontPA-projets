@@ -47,7 +47,7 @@ export function LoginForm() {
         console.log("userStr", userStr)
         if (userStr) {
           const user = JSON.parse(userStr);
-          if (user.user.role.name === "Teacher") {
+          if (user.user.role.name === "Teacher" || user.user.role.name === "ADMIN") {
             router.push("/dashboard");
           } else if (user.user.role.name === "student") {
             router.push("/student/projets");
@@ -72,7 +72,7 @@ export function LoginForm() {
   const handleOAuthLogin = (provider: string) => {
     setIsLoading(true)
     if (provider === "google") {
-      router.push('http://localhost:3001/api/auth/google');
+      router.push('http://localhost:3001/auth/google');
     }
 
   }
@@ -81,47 +81,47 @@ export function LoginForm() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Connexion</CardTitle>
-        <CardDescription>Connectez-vous à votre compte pour accéder à la plateforme</CardDescription>
+        {/*<CardDescription>Connectez-vous à votre compte pour accéder à la plateforme</CardDescription>*/}
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <div className="flex border rounded-md overflow-hidden">
-            <button
-              type="button"
-              className={`flex-1 py-2 text-center ${
-                userRole === "enseignant" ? "bg-primary text-white" : "bg-gray-100"
-              }`}
-              onClick={() => setUserRole("enseignant")}
-            >
-              Enseignant
-            </button>
-            <button
-              type="button"
-              className={`flex-1 py-2 text-center ${userRole === "etudiant" ? "bg-primary text-white" : "bg-gray-100"}`}
-              onClick={() => setUserRole("etudiant")}
-            >
-              Étudiant
-            </button>
-          </div>
-        </div>
+        {/*<div className="mb-4">*/}
+        {/*  <div className="flex border rounded-md overflow-hidden">*/}
+        {/*    <button*/}
+        {/*      type="button"*/}
+        {/*      className={`flex-1 py-2 text-center ${*/}
+        {/*        userRole === "enseignant" ? "bg-primary text-white" : "bg-gray-100"*/}
+        {/*      }`}*/}
+        {/*      onClick={() => setUserRole("enseignant")}*/}
+        {/*    >*/}
+        {/*      Enseignant*/}
+        {/*    </button>*/}
+        {/*    <button*/}
+        {/*      type="button"*/}
+        {/*      className={`flex-1 py-2 text-center ${userRole === "etudiant" ? "bg-primary text-white" : "bg-gray-100"}`}*/}
+        {/*      onClick={() => setUserRole("etudiant")}*/}
+        {/*    >*/}
+        {/*      Étudiant*/}
+        {/*    </button>*/}
+        {/*  </div>*/}
+        {/*</div>*/}
 
         <Tabs defaultValue="credentials" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="credentials">Identifiants</TabsTrigger>
-            <TabsTrigger value="oauth">OAuth</TabsTrigger>
-          </TabsList>
+          {/*<TabsList className="grid w-full grid-cols-1">*/}
+          {/*  <TabsTrigger value="credentials">Identifiants</TabsTrigger>*/}
+          {/*  /!*<TabsTrigger value="oauth">OAuth</TabsTrigger>*!/*/}
+          {/*</TabsList>*/}
 
           <TabsContent value="credentials">
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                    id="email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                 />
               </div>
               <div className="space-y-2">
@@ -132,48 +132,73 @@ export function LoginForm() {
                   </Button>
                 </div>
                 <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </form>
+
+            <div className="space-y-2 mt-6">
+
+              <p><strong>Autre option de connexion</strong></p>
+
+              <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                  onClick={() => handleOAuthLogin("google")}
+                  disabled={isLoading}
+              >
+                <FaGoogle/>
+                <span>Continuer avec Google</span>
+              </Button>
+
+              <Button
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                  onClick={() => handleOAuthLogin("microsoft")}
+                  disabled={isLoading}
+              >
+                <FaMicrosoft/>
+                <span>Continuer avec Microsoft</span>
+              </Button>
+            </div>
           </TabsContent>
 
-          <TabsContent value="oauth" className="space-y-4 mt-4">
-            <Button
-              variant="outline"
-              className="w-full flex items-center gap-2"
-              onClick={() => handleOAuthLogin("google")}
-              disabled={isLoading}
-            >
-              <FaGoogle />
-              <span>Continuer avec Google</span>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full flex items-center gap-2"
-              onClick={() => handleOAuthLogin("microsoft")}
-              disabled={isLoading}
-            >
-              <FaMicrosoft />
-              <span>Continuer avec Microsoft</span>
-            </Button>
-          </TabsContent>
+          {/*<TabsContent value="oauth" className="space-y-4 mt-4">*/}
+          {/*  <Button*/}
+          {/*    variant="outline"*/}
+          {/*    className="w-full flex items-center gap-2"*/}
+          {/*    onClick={() => handleOAuthLogin("google")}*/}
+          {/*    disabled={isLoading}*/}
+          {/*  >*/}
+          {/*    <FaGoogle />*/}
+          {/*    <span>Continuer avec Google</span>*/}
+          {/*  </Button>*/}
+          {/*  <Button*/}
+          {/*    variant="outline"*/}
+          {/*    className="w-full flex items-center gap-2"*/}
+          {/*    onClick={() => handleOAuthLogin("microsoft")}*/}
+          {/*    disabled={isLoading}*/}
+          {/*  >*/}
+          {/*    <FaMicrosoft />*/}
+          {/*    <span>Continuer avec Microsoft</span>*/}
+          {/*  </Button>*/}
+          {/*</TabsContent>*/}
         </Tabs>
       </CardContent>
-      <CardFooter className="flex justify-center border-t pt-4">
-        <p className="text-sm text-gray-500">
-          {userRole === "enseignant"
-            ? "Seuls les enseignants peuvent créer un compte."
-            : "Les comptes étudiants sont créés par les enseignants."}
-        </p>
-      </CardFooter>
+      {/*<CardFooter className="flex justify-center border-t pt-4">*/}
+      {/*  <p className="text-sm text-gray-500">*/}
+      {/*    {userRole === "enseignant"*/}
+      {/*      ? "Seuls les enseignants peuvent créer un compte."*/}
+      {/*      : "Les comptes étudiants sont créés par les enseignants."}*/}
+      {/*  </p>*/}
+      {/*</CardFooter>*/}
     </Card>
   )
 }

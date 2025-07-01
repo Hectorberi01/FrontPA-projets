@@ -119,8 +119,14 @@ export default function StudentProjetsPage() {
                                       </Button>
                                   ) : (
                                       project.statut !== "Terminé" && (
-                                          <Button size="sm" asChild>
-                                            <Link href={`/student/projets/${project.id}/rejoindre-groupe`}>Rejoindre un groupe</Link>
+                                          <Button size="sm"
+                                                  onClick={() => {
+                                                    localStorage.setItem("selectedProject", JSON.stringify(project));
+                                                    router.push(`/student/projets/${project.id}/rejoindre-groupe`);
+                                                  }}
+                                          >
+                                            {/*<Link href={`/student/projets/${project.id}/rejoindre-groupe`}>Rejoindre un groupe</Link>*/}
+                                            Rejoindre un groupe
                                           </Button>
                                       )
                                   );

@@ -4,7 +4,7 @@ import React, {useEffect} from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import {usePathname, useRouter} from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -50,12 +50,12 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [user, setUser] = useState<any | null>(null)
   const closeMobileNav = () => setIsMobileNavOpen(false)
-
+  const router = useRouter()
   const navItems = [
     { href: "/student/projets", icon: <BookOpen size={20} />, label: "Mes projets" },
     // { href: "/student/groupes", icon: <Users size={20} />, label: "Mes groupes" },
-    { href: "/student/livrables", icon: <ClipboardList size={20} />, label: "Livrables" },
-    { href: "/student/rapports", icon: <FileText size={20} />, label: "Rapports" },
+    // { href: "/student/livrables", icon: <ClipboardList size={20} />, label: "Livrables" },
+    // { href: "/student/rapports", icon: <FileText size={20} />, label: "Rapports" },
   ]
 
   useEffect(() => {
@@ -123,27 +123,30 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/student/profile" className="cursor-pointer flex items-center gap-2">
-                    <Avatar className="h-4 w-4">
-                      <AvatarImage src="/placeholder.svg?height=16&width=16" alt="Avatar" />
-                      <AvatarFallback>ET</AvatarFallback>
-                    </Avatar>
-                    <span>Profil</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/student/settings" className="cursor-pointer flex items-center gap-2">
-                    <Settings size={16} />
-                    <span>Paramètres</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                {/*<DropdownMenuLabel>Mon compte</DropdownMenuLabel>*/}
+                {/*<DropdownMenuSeparator />*/}
+                {/*<DropdownMenuItem asChild>*/}
+                {/*  <Link href="/student/profile" className="cursor-pointer flex items-center gap-2">*/}
+                {/*    <Avatar className="h-4 w-4">*/}
+                {/*      <AvatarImage src="/placeholder.svg?height=16&width=16" alt="Avatar" />*/}
+                {/*      <AvatarFallback>ET</AvatarFallback>*/}
+                {/*    </Avatar>*/}
+                {/*    <span>Profil</span>*/}
+                {/*  </Link>*/}
+                {/*</DropdownMenuItem>*/}
+                {/*<DropdownMenuItem asChild>*/}
+                {/*  <Link href="/student/settings" className="cursor-pointer flex items-center gap-2">*/}
+                {/*    <Settings size={16} />*/}
+                {/*    <span>Paramètres</span>*/}
+                {/*  </Link>*/}
+                {/*</DropdownMenuItem>*/}
+                {/*<DropdownMenuSeparator />*/}
                 <DropdownMenuItem className="cursor-pointer flex items-center gap-2 text-red-600">
                   <LogOut size={16} />
-                  <span>Déconnexion</span>
+                  <span onClick={()=>{
+                    localStorage.removeItem("user");
+                    router.push("/");
+                  }}>Déconnexion</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

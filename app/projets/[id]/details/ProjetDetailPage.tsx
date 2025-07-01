@@ -17,6 +17,8 @@ interface ProjectDetailsPageProps {
 }
 export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) {
     const [projets, setProjet] = useState<any>()
+    const [hasEmptyGroups, setHasEmptyGroup] = useState<boolean>();
+
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -30,6 +32,16 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
 
         if (projectId) fetchProject()
     }, [projectId])
+
+    useEffect(() => {
+        if (!projets?.groups) return;
+
+        const hasEmptyGroup = projets.groups.some((group: any) =>
+            (group.groupStudent ?? []).length === 0
+        );
+
+        setHasEmptyGroup(hasEmptyGroup);
+    }, [projets]);
 
     const handleRunSimilarityCheck = async () => {
         try {
@@ -56,8 +68,11 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
     };
 
     const handleGenerateSoutenanceOrder = async () => {
+        const data = {
+            projectId: Number(projectId),
+        }
         try {
-            const res = await generateSoutenanceSchedule("")
+            const res = await generateSoutenanceSchedule(projets.id)
             if (res.ok) {
                 alert('Ordre de passage généré avec succès.');
                 // Optionnel : refetch ou recharger les données
@@ -70,6 +85,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
         }
     };
 
+    console.log("hasEmptyGroups", hasEmptyGroups)
     return (
         <DashboardLayout>
             <div className="container mx-auto px-4 py-8">
@@ -354,7 +370,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                     <CardDescription>Ordre de passage pour la soutenance</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    {projets?.soutenances && projets.soutenances.length > 0 ? (
+                                    {projets?.soutenances && projets.soutenances.length > 0 && !hasEmptyGroups ? (
                                         <table className="w-full text-left border border-gray-300">
                                             <thead className="bg-gray-100">
                                             <tr>
@@ -366,9 +382,9 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                             </thead>
                                             <tbody>
                                             {projets.soutenances
-                                                .sort((a:any, b:any) => a.order - b.order)
-                                                .map((soutenance:any, index:any) => {
-                                                    const group = projets?.groups.find((g:any) => g.id === soutenance.groupId);
+                                                .sort((a: any, b: any) => a.order - b.order)
+                                                .map((soutenance: any, index: any) => {
+                                                    const group = projets?.groups.find((g: any) => g.id === soutenance.groupId);
 
                                                     const formatTime = (iso: string) => {
                                                         const date = new Date(iso);
@@ -390,15 +406,20 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                             </tbody>
                                         </table>
                                     ) : (
-                                        <div className="text-center text-gray-500 py-6">
-                                            <p className="mb-4">Aucune soutenance prévue.</p>
-                                            <button
-                                                onClick={handleGenerateSoutenanceOrder}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                            >
-                                                Générer l’ordre de passage
-                                            </button>
-                                        </div>
+                                        hasEmptyGroups ? (
+                                            <div className="text-center text-gray-500 py-6">
+                                                <p className="mb-4">Un ou plusieurs groupes ne contiennent pas d’étudiants.</p>
+                                            </div>
+
+                                        ):(
+                                            <div className="text-center text-gray-500 py-6">
+                                                <p className="mb-4">Aucune soutenance prévue.</p>
+                                                <button onClick={handleGenerateSoutenanceOrder} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                                >
+                                                    Générer l’ordre de passage
+                                             </button>
+                                            </div>
+                                         )
                                     )}
                                 </CardContent>
 

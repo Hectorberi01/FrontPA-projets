@@ -15,6 +15,7 @@ import {createNewReport} from "@/lib/services/report";
 import Swal from "sweetalert2";
 import {DocumentUploadModal} from "@/components/modals/upload-livrable-modal";
 import {uploadLivrable} from "@/lib/services/livrables";
+import {useRouter} from "next/navigation";
 
 interface report {
   title:string
@@ -26,11 +27,14 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
   const  [isOpen, setIsOpen] = useState<boolean>(false);
   const [reports, setReports] = useState<report>();
   const[groupId, setGroupId] = useState();
+  const[estDansGroup, setEstDansGroup] = useState<boolean>();
+  const router = useRouter()
 
   const onClose = useCallback(() => setIsOpen(false), []);
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
   const [openUpload, setOpenUpload] = useState(false)
+  const [estsoutenancepasse, setEstSoutenancePasse] = useState<boolean>();
 
 
   const handleUpload = async (data: { name: string ,description: string, repoLink?: string, file: File }) => {
@@ -142,8 +146,20 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
     if (groupe?.id) {
       setGroupId(groupe.id);
     }
+
+    const estDansUnGroupe = projets.groups.some((group:any) =>
+        group.groupStudent.some((member:any) => member.studentId === studentId)
+    );
+
+    const estSoutenancePasse = projets.soutenanceDate && new Date(projets.soutenanceDate) < new Date() && projets.allowLate === false;
+    setEstSoutenancePasse(estSoutenancePasse)
+    console.log("estDansUnGroupe", estDansUnGroupe);
+    setEstDansGroup(estDansUnGroupe);
+
+
   }, [projets]);
 
+  console.log("estDansGroup", estDansGroup);
   return (
     <StudentLayout>
       <div className="container mx-auto px-4 py-8">
@@ -261,12 +277,13 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                             </div>
                         ))}
 
-                        <Button className="w-full" asChild>
-                          <Link href={`/student/groupes/${groupe.id}`}>
-                            <Users className="mr-2 h-4 w-4" />
-                            Gérer mon groupe
-                          </Link>
-                        </Button>
+                        <h3> Note du groupe : 10/20</h3>
+                        {/*<Button className="w-full" asChild>*/}
+                        {/*  <Link href={`/student/groupes/${groupe.id}`}>*/}
+                        {/*    <Users className="mr-2 h-4 w-4" />*/}
+                        {/*    Gérer mon groupe*/}
+                        {/*  </Link>*/}
+                        {/*</Button>*/}
                       </div>
                   );
                 } else {
@@ -275,11 +292,17 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                         <p className="text-gray-500 mb-4">
                           Vous n'êtes pas encore assigné à un groupe pour ce projet.
                         </p>
-                        <Button asChild>
-                          <Link href={`/student/projets/${projets?.id}/rejoindre-groupe`}>
-                            Rejoindre un groupe
-                          </Link>
-                        </Button>
+
+                        {projets?.statut !== "Terminé" && (
+                            <Button size="sm"
+                                    onClick={() => {
+                                      localStorage.setItem("selectedProject", JSON.stringify(projets));
+                                      router.push(`/student/projets/${projets.id}/rejoindre-groupe`);
+                                    }}
+                            >
+                              Rejoindre un groupe
+                            </Button>)
+                        }
                       </div>
                   );
                 }
@@ -303,7 +326,16 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                   <CardDescription>Liste des livrables à soumettre pour ce projet</CardDescription>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button onClick={() => setOpenUpload(true)}>Soumettre un livrable</Button>
+                      {estDansGroup && (
+                          <div className="space-y-2">
+                          <Button onClick={() => setOpenUpload(true)} disabled={estsoutenancepasse}>Soumettre un livrable</Button>
+                            {estsoutenancepasse && (
+                                <p className="text-sm text-red-500">
+                                  Vous ne pouvez plus soumettre de livrable, la date de soutenance est dépassée et les retards ne sont pas autorisés.
+                                </p>
+                            )}
+                          </div>
+                      )}
                     </DialogTrigger>
                     <DocumentUploadModal
                         isOpen={openUpload}
@@ -327,9 +359,16 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                     return (
                         <div className="text-center py-6">
                           <p className="text-gray-500 mb-4">Vous n'avez pas encore de groupe pour ce projet.</p>
-                          <Button asChild>
-                            <Link href={`/student/projets/${projets?.id}/rejoindre-groupe`}>Rejoindre un groupe</Link>
-                          </Button>
+                          {projets?.statut !== "Terminé" && (
+                              <Button size="sm"
+                                      onClick={() => {
+                                        localStorage.setItem("selectedProject", JSON.stringify(projets));
+                                        router.push(`/student/projets/${projets.id}/rejoindre-groupe`);
+                                      }}
+                              >
+                                Rejoindre un groupe
+                              </Button>)
+                          }
                         </div>
                     );
                   }
@@ -391,14 +430,26 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                 <div>
                   <CardTitle>Rapports</CardTitle>
                   <CardDescription>Liste des rapports du projet</CardDescription>
-                </div>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button onClick={handleOpen}>Rédiger un rapport</Button>
-                  </DialogTrigger>
-                      <RapportEditorModal isOpen={isOpen} onClose={onClose} rapport={reports ?? { title: '', content: '' }} onSave={ handleSave} />
-                </Dialog>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                        {estDansGroup && (
+                            <div className="space-y-2">
+                              <Button onClick={handleOpen} disabled={estsoutenancepasse}>Rédiger un rappor</Button>
+
+                              {estsoutenancepasse && (
+                                <p className="text-sm text-red-500">
+                                Vous ne pouvez plus soumettre de rapport, la date de soutenance est dépassée et les retards ne sont pas autorisés.
+                                </p>
+                              )}
+                            </div>
+                        )}
+                      {/*<Button onClick={handleOpen}>Rédiger un rapport</Button>*/}
+                    </DialogTrigger>
+                        <RapportEditorModal isOpen={isOpen} onClose={onClose} rapport={reports ?? { title: '', content: '' }} onSave={ handleSave} />
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
                 {(() => {
@@ -414,9 +465,16 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                     return (
                         <div className="text-center py-6">
                           <p className="text-gray-500 mb-4">Vous n'avez pas encore de groupe pour ce projet.</p>
-                          <Button asChild>
-                            <Link href={`/student/projets/${projets?.id}/rejoindre-groupe`}>Rejoindre un groupe</Link>
-                          </Button>
+                          {projets?.statut !== "Terminé" && (
+                          <Button size="sm"
+                                  onClick={() => {
+                                    localStorage.setItem("selectedProject", JSON.stringify(projets));
+                                    router.push(`/student/projets/${projets.id}/rejoindre-groupe`);
+                                  }}
+                          >
+                            {/*<Link href={`/student/projets/${project.id}/rejoindre-groupe`}>Rejoindre un groupe</Link>*/}
+                            Rejoindre un groupe
+                          </Button>)}
                         </div>
                     );
                   }
@@ -464,21 +522,6 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                                     {statut}
                                   </Badge>
                                 </div>
-
-                                {/*<div className="mt-4 flex justify-end">*/}
-                                {/*  {statut === "Soumis" ? (*/}
-                                {/*      <Button variant="outline" size="sm" asChild>*/}
-                                {/*        <Link href={`/student/rapports/${rapport.id}`}>Voir rapport</Link>*/}
-                                {/*      </Button>*/}
-                                {/*  ) : (*/}
-                                {/*      <Button size="sm" asChild>*/}
-                                {/*        <Link href={`/student/rapports/${rapport.id}/editer`}>*/}
-                                {/*          <FileText className="mr-2 h-4 w-4" />*/}
-                                {/*          {statut === "En cours" ? "Continuer" : "Rédiger"}*/}
-                                {/*        </Link>*/}
-                                {/*      </Button>*/}
-                                {/*  )}*/}
-                                {/*</div>*/}
                               </div>
                           );
                         })}

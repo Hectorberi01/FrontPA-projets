@@ -32,19 +32,26 @@ export async function fecthGroupeById(id: number) {
     }
 }
 
-export async function addStudentToGroup(id: number, studentId: number) {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_GROUP_URL}/addStudent`,{
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            groupId: id,
-            studentId: studentId,
+export async function joinTogroup(id: number, studentId: number) {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_GROUP_URL}/join-to-group`,{
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                groupId: id,
+                studentId: studentId,
+            })
         })
-    })
-    if (response.status !== 200) {
-        throw new Error("Network response was not ok");
+        console.log("response.status", response.status);
+        if (response.status !== 200) {
+            return false
+        }
+        if (response.status == 200) {
+            return true
+        }
+    }catch (error) {
+        return false
     }
-    return await response.json();
 }
