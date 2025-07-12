@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { BookOpen, Download, Eye, Filter, MoreHorizontal, Plus, Search, Trash, Upload, Users } from "lucide-react"
 import Link from "next/link"
 import { use, useEffect, useState } from "react"
-import { getPromotions } from "@/lib/services/promotionService"
+import {deletePromotion, getPromotions} from "@/lib/services/promotionService"
+import Swal from "sweetalert2";
 
 export default function PromotionsPage() {
   const [promotion, setPromotion] = useState<any[]>([])
@@ -21,7 +22,6 @@ export default function PromotionsPage() {
     setError(null)
     try {
       const response = await getPromotions()
-      console.log("Promotions:", response)
       setPromotion(response)
     } catch (error) {
       setError(error as string)
@@ -34,6 +34,31 @@ export default function PromotionsPage() {
   useEffect(() => {
     fetchPromotions()
   }, [])
+
+  const deletePromo = async (promotionId: string) => {
+    try {
+      const id = parseInt(promotionId)
+      const response = await deletePromotion(id)
+      if(!response) {
+        Swal.fire({
+          icon: "error",
+          title: "error",
+          text: "Something went wrong!",
+          draggable: true
+        });
+      }else {
+        Swal.fire({
+          title: "Success!",
+          icon: "success",
+          draggable: true
+        });
+      }
+
+      window.location.reload()
+    }catch (error) {
+      console.error(error)
+    }
+  }
   
   return (
     <DashboardLayout>
@@ -118,11 +143,17 @@ export default function PromotionsPage() {
                         <div className="flex items-center gap-1">
                           <BookOpen size={16} />
                           {/* <span>{promotion.nombreProjets}</span> */}
-                          <span>{promotion.numberOfProjects}</span>
+                          <span>{promotion.projects.length}</span>
                         </div>
                       </TableCell>
-                      {/* <TableCell>{promotion.dateCreation}</TableCell> */}
-                      <TableCell>2024</TableCell>
+                       <TableCell>
+                         {new Date(promotion.createdAt).toLocaleDateString("fr-FR", {
+                           day: "numeric",
+                           month: "long",
+                           year: "numeric",
+                         })}
+                       </TableCell>
+                      {/*<TableCell>2024</TableCell>*/}
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -145,7 +176,9 @@ export default function PromotionsPage() {
                             {/*    Gérer les étudiants*/}
                             {/*  </Link>*/}
                             {/*</DropdownMenuItem>*/}
-                            <DropdownMenuItem className="text-red-600 flex items-center">
+                            <DropdownMenuItem
+                                className="text-red-600 flex items-center"
+                                onClick={() => deletePromo(promotion.id)}>
                               <Trash size={16} className="mr-2" />
                               Supprimer
                             </DropdownMenuItem>

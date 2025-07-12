@@ -8,7 +8,6 @@ const AUTH_URL= process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:3000/api/a
 const USER_URL = process.env.NEXT_PUBLIC_USER_URL || "http://localhost:3000/api/user";
 
 export async function createPromotion(promotionData : CreatePromotion, file: File) {
-    //const { id, ...newPromotion } = promotionData;
     console.log("Promotion data:", promotionData);
     console.log("File data:", file);
     const formData = new FormData();
@@ -28,13 +27,11 @@ export async function createPromotion(promotionData : CreatePromotion, file: Fil
 
     }catch (error) {
         console.error("Error creating promotion:", error);
-        throw new Error("Failed to create promotion");
+        //throw new Error("Failed to create promotion");
     }
 }
 
 export async function getPromotions() {
-    console.log('url',`${PROMOTION_SERVER_URL}`)
-    console.log('env',process.env.NEXT_PUBLIC_BASE_URL)
     try {
         const response = await fetch(`${PROMOTION_SERVER_URL}`, {
             method: "GET",
@@ -43,7 +40,27 @@ export async function getPromotions() {
             },
         });
         if (!response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
+            console.log("Error fetching promotions:");
+        }
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.log("Error fetching promotions:", error);
+        throw error;
+    }
+}
+
+export async function getWithoutStudentPromotions() {
+    try {
+        const response = await fetch(`${PROMOTION_SERVER_URL}/all`, {
+            method: "GET",
+            headers: {"Content-Type": "application/json",},
+        });
+        console.log("response", response);
+        if (!response.ok) {
+            console.error(`Error: ${response.statusText}`);
+            //throw new Error(`Error: ${response.statusText}`);
         }
         const data = await response.json();
         console.log("Data:", data);
@@ -51,9 +68,11 @@ export async function getPromotions() {
         return data;
     } catch (error) {
         console.error("Error fetching promotions:", error);
-        throw new Error("Failed to fetch promotions");
+        //throw new Error("Failed to fetch promotions");
     }
 }
+
+
 export async function getPromotionById(id: number) {
     console.log('url',`${process.env.NEXT_PUBLIC_PROMOTION_URL}/${id}`);
     try {
@@ -67,8 +86,8 @@ export async function getPromotionById(id: number) {
             throw new Error(`Error: ${response.statusText}`);
         }
         const data = await response.json();
+        console.log("Data:", data);
         const projects = await getProjectByPromotionId(id);
-        console.log("Projects:", projects);
         const students = await AllStudents();
 
         const promotionStudentsWithUsers = (data.promotionStudents || []).map((ps: any) => {
@@ -87,7 +106,7 @@ export async function getPromotionById(id: number) {
         return promotion;
     } catch (error) {
         console.error("Error fetching promotion:", error);
-        throw new Error("Failed to fetch promotion");
+        //throw new Error("Failed to fetch promotion");
     }
 }
 
@@ -146,16 +165,17 @@ export async function updatePromotion(id: number, promotionData: Promotion) {
 }
 export async function deletePromotion(id: number) {
     try {
-        const response = await fetch(`${process.env.API_URL}/promotions/${id}`, {
+        const response = await fetch(`${PROMOTION_SERVER_URL}/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
         });
-        if (!response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
+
+        if (response.status != 200) {
+           return false
         }
-        return response.json();
+        return true;
     } catch (error) {
         console.error("Error deleting promotion:", error);
         throw new Error("Failed to delete promotion");
@@ -179,17 +199,13 @@ export async function getPromotionByName(name: string) {
     }
 }
 export async function  addStudentToPromotion(id: number,student:any) {
+    console.log("student:", student);
     try{
-        // on enregistre l'utilisateur
         const response = await fetch(`${AUTH_URL}/register`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: {"Content-Type": "application/json",},
             body: JSON.stringify(student),
         })
-
-        console.log("response",response);
 
         if (!response.ok) {
             throw new Error(`Erreur lors de l'enregistrement de l'utilisateur : ${response.statusText}`);
@@ -227,5 +243,21 @@ export async function  addStudentToPromotion(id: number,student:any) {
 
     }catch(error){
 
+    }
+}
+
+export async function addStudentWithCSV(promoId: number, formData: FormData) {
+    try {
+        const response = await fetch(`${PROMOTION_SERVER_URL}/${promoId}/students/csv`, {
+            method: "POST",
+            body: formData,
+        })
+
+        if(response.status != 200) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+        return response;
+    }catch(error){
+        console.error("Error deleting student with CSV");
     }
 }

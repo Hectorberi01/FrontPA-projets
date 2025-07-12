@@ -19,18 +19,25 @@ export async function fetchProjects(): Promise<Project[]> {
     }
 }
 
-export async function createProject(project: any) {
+export async function createProject(project: any,file :File | undefined) {
+    console.log("project", project);
+    console.log("file", file);
+    const formData = new FormData();
+    formData.append("project", JSON.stringify(project));
+    if (file) {
+        formData.append("file", file);
+    }
     try {
+
         const response = await fetch(`${BASE_URL}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(project),
+            body: formData,
         });
 
         if (response.status !== 201) {
             throw new Error("Network response was not ok");
         }
-        return await response.json()
+        return true
     }catch(error) {
         console.error("Error creating project:", error);
     }

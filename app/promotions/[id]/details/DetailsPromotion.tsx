@@ -29,7 +29,6 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
     try {
       const id = Number.parseInt(promotionId)
       const response = await getPromotionById(id)
-      console.log("Promotion data:", response)
       if (response) {
         setPromotion(response)
       } else {
@@ -47,6 +46,8 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
     fetchPromotions()
   }, [])
 
+
+  console.log("Promotion data:", promo)
   return (
     <DashboardLayout>
       <div className="container mx-auto px-4 py-8">
