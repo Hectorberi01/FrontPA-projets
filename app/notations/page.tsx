@@ -1,190 +1,93 @@
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { BookOpen, ChevronDown, Download, Eye, Filter, MoreHorizontal, Pencil, Search, Users } from "lucide-react"
-import Link from "next/link"
+'use client'
 
-export default function NotationsPage() {
-  // Simulation de données pour les grilles de notation
-  const grilles = [
-    {
-      id: 1,
-      nom: "Évaluation des maquettes",
-      projet: "Projet Web Full Stack",
-      promotion: "Master 2 Informatique",
-      type: "Livrable",
-      statut: "Complété",
-      groupes: 5,
-    },
-    {
-      id: 2,
-      nom: "Évaluation du prototype",
-      projet: "Projet Web Full Stack",
-      promotion: "Master 2 Informatique",
-      type: "Livrable",
-      statut: "En cours",
-      groupes: 5,
-    },
-    {
-      id: 3,
-      nom: "Rapport d'analyse",
-      projet: "Projet Web Full Stack",
-      promotion: "Master 2 Informatique",
-      type: "Rapport",
-      statut: "Complété",
-      groupes: 5,
-    },
-    {
-      id: 4,
-      nom: "Prototype mobile",
-      projet: "Application Mobile",
-      promotion: "Licence 3 Informatique",
-      type: "Livrable",
-      statut: "En cours",
-      groupes: 7,
-    },
-    {
-      id: 5,
-      nom: "Soutenance finale",
-      projet: "Intelligence Artificielle",
-      promotion: "Master 1 IA",
-      type: "Soutenance",
-      statut: "À venir",
-      groupes: 4,
-    },
-  ]
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { getGrillesByProjectId } from "@/lib/services/notation"
+import {Grille, mockGrilles} from "@/lib/types/notation";
+
+
+interface GrilleNotation {
+  id: number
+  type: 'livrable' | 'rapport' | 'soutenance'
+  titre: string
+  criteres: number
+  statut: 'brouillon' | 'validee'
+}
+
+export default function GrillesProjetPage() {
+  const params = useParams()
+  const projectId = params.projectId as string
+
+  const [grilles, setGrilles] = useState<Grille[]>([])
+
+  useEffect(() => {
+    const fetchGrilles = async () => {
+      try {
+        const data = mockGrilles
+        setGrilles(data)
+      } catch (error) {
+        console.error("Erreur lors du chargement des grilles :", error)
+      }
+    }
+
+    fetchGrilles()
+  }, [projectId])
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Notations</h1>
-            <p className="text-gray-600 mt-1">Gérez toutes les grilles de notation</p>
+      <DashboardLayout>
+        <div className="container mx-auto py-10">
+          <h1 className="text-3xl font-bold text-center mb-8">Grilles de Notation du Projet</h1>
+
+          <div className="flex justify-end mb-4">
+            <Link href={`/notations/${projectId}/grille`}>
+              <Button>+ Ajouter une grille</Button>
+            </Link>
           </div>
-          <div className="mt-4 md:mt-0">
-            <Button asChild>
-              <Link href="/notations/nouvelle">Nouvelle grille</Link>
-            </Button>
+
+          <div className="bg-white rounded-lg border p-6 shadow-md">
+            {grilles.length === 0 ? (
+                <p className="text-gray-600">Aucune grille définie pour ce projet.</p>
+            ) : (
+                <table className="table-auto w-full border text-left">
+                  <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-2 border">Titre</th>
+                    <th className="p-2 border">Type</th>
+                    <th className="p-2 border">Nombre de Critères</th>
+                    <th className="p-2 border">Statut</th>
+                    <th className="p-2 border">Actions</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {grilles.map((grille) => (
+                      <tr key={grille.id}>
+                        <td className="p-2 border">{grille.titre}</td>
+                        <td className="p-2 border">{grille.type}</td>
+                        <td className="p-2 border">
+                          <ul className="list-disc list-inside">
+                            {grille.criteres.map(c => (
+                                <li key={c.id}>{c.nom} ({c.poids}%)</li>
+                            ))}
+                          </ul>
+                        </td>
+                        <td className="p-2 border">{grille.statut}</td>
+                        <td className="p-2 border">
+                          <Link href={`/notations/${projectId}/grille/${grille.id}`} className="inline-block">
+                            <button className="px-3 py-1 text-white bg-blue-600 hover:bg-blue-700 rounded">
+                              {grille.statut === 'en cours' ? 'Remplir' : 'Voir / Modifier'}
+                            </button>
+                          </Link>
+                        </td>
+                      </tr>
+                  ))}
+                  </tbody>
+                </table>
+            )}
           </div>
         </div>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Grilles de notation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input placeholder="Rechercher une grille..." className="pl-10" />
-              </div>
-              <div className="flex gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Filter size={16} />
-                      <span>Filtrer</span>
-                      <ChevronDown size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Toutes les grilles</DropdownMenuItem>
-                    <DropdownMenuItem>Livrables</DropdownMenuItem>
-                    <DropdownMenuItem>Rapports</DropdownMenuItem>
-                    <DropdownMenuItem>Soutenances</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <Button variant="outline">
-                  <Download size={16} className="mr-2" />
-                  Exporter
-                </Button>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nom</TableHead>
-                    <TableHead>Projet</TableHead>
-                    <TableHead>Promotion</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Groupes</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {grilles.map((grille) => (
-                    <TableRow key={grille.id}>
-                      <TableCell className="font-medium">{grille.nom}</TableCell>
-                      <TableCell>{grille.projet}</TableCell>
-                      <TableCell>{grille.promotion}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{grille.type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            grille.statut === "Complété"
-                              ? "secondary"
-                              : grille.statut === "En cours"
-                                ? "default"
-                                : "outline"
-                          }
-                        >
-                          {grille.statut}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Users size={16} />
-                          <span>{grille.groupes}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal size={16} />
-                              <span className="sr-only">Actions</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/notations/${grille.id}`} className="flex items-center">
-                                <Eye size={16} className="mr-2" />
-                                Voir détails
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/notations/${grille.id}/edit`} className="flex items-center">
-                                <Pencil size={16} className="mr-2" />
-                                Modifier
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/notations/${grille.id}/evaluer`} className="flex items-center">
-                                <BookOpen size={16} className="mr-2" />
-                                Évaluer
-                              </Link>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
   )
 }

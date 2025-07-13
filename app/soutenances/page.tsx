@@ -46,7 +46,7 @@ export default function SoutenancesPage() {
         }
 
         fetchSoutenance()
-    })
+    },[])
 
   return (
       <DashboardLayout>

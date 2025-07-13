@@ -43,7 +43,7 @@ export async function createProject(project: any,file :File | undefined) {
     }
 }
 
-export async function updateProject(project: Project,id : number) {
+export async function updateProject(project: any,id : number) {
     try {
         const response = await fetch(`${BASE_URL}/${id}`, {
             method: 'PUT',

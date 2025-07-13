@@ -1,5 +1,4 @@
 "use client"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,111 +8,6 @@ import Link from "next/link"
 import {DashboardLayout} from "@/components/layout/dashboard-layout";
 import {useEffect, useState} from "react";
 import {fecthGroupeById} from "@/lib/services/groupe";
-
-// Données mockées - à remplacer par des appels API
-const mockGroupData = {
-    id: 1,
-    nom: "Équipe Alpha",
-    description: "Développement d'une application mobile de gestion de tâches",
-    statut: "En cours",
-    dateCreation: "2024-01-15",
-    projet: {
-        id: 1,
-        nom: "Projet Innovation 2024",
-    },
-    membres: [
-        {
-            id: 1,
-            nom: "Marie Dubois",
-            email: "marie.dubois@email.com",
-            telephone: "06 12 34 56 78",
-            role: "Chef de projet",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        {
-            id: 2,
-            nom: "Pierre Martin",
-            email: "pierre.martin@email.com",
-            telephone: "06 98 76 54 32",
-            role: "Développeur",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        {
-            id: 3,
-            nom: "Sophie Laurent",
-            email: "sophie.laurent@email.com",
-            telephone: "06 11 22 33 44",
-            role: "Designer",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        {
-            id: 4,
-            nom: "Thomas Rousseau",
-            email: "thomas.rousseau@email.com",
-            telephone: "06 55 66 77 88",
-            role: "Testeur",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-    ],
-    rapports: [
-        {
-            id: 1,
-            titre: "Rapport d'avancement - Semaine 1",
-            description: "Analyse des besoins et définition des spécifications",
-            dateCreation: "2024-01-22",
-            auteur: "Marie Dubois",
-            statut: "Validé",
-            fichier: "rapport_s1.pdf",
-        },
-        {
-            id: 2,
-            titre: "Rapport d'avancement - Semaine 2",
-            description: "Conception de l'architecture et maquettes",
-            dateCreation: "2024-01-29",
-            auteur: "Sophie Laurent",
-            statut: "En attente",
-            fichier: "rapport_s2.pdf",
-        },
-        {
-            id: 3,
-            titre: "Rapport technique - Base de données",
-            description: "Modélisation et implémentation de la base de données",
-            dateCreation: "2024-02-05",
-            auteur: "Pierre Martin",
-            statut: "Brouillon",
-            fichier: "rapport_bdd.pdf",
-        },
-    ],
-    livrables: [
-        {
-            id: 1,
-            nom: "Cahier des charges",
-            description: "Document de spécifications fonctionnelles et techniques",
-            dateEcheance: "2024-02-01",
-            statut: "Livré",
-            fichier: "cahier_charges.pdf",
-            taille: "2.3 MB",
-        },
-        {
-            id: 2,
-            nom: "Maquettes UI/UX",
-            description: "Prototypes et maquettes de l'interface utilisateur",
-            dateEcheance: "2024-02-15",
-            statut: "En cours",
-            fichier: "maquettes.zip",
-            taille: "15.7 MB",
-        },
-        {
-            id: 3,
-            nom: "Code source v1.0",
-            description: "Première version fonctionnelle de l'application",
-            dateEcheance: "2024-03-01",
-            statut: "À venir",
-            fichier: null,
-            taille: null,
-        },
-    ],
-}
 
 interface PageProps {
     params: {
@@ -125,23 +19,7 @@ interface PageProps {
 export default function GroupeDetailsPage({ params }: PageProps) {
     const { id, groupeId } = params
     const [group, setGroup] = useState<any>()
-    const groupe = mockGroupData // En réalité, on ferait un fetch avec les IDs
 
-    const getStatutColor = (statut: string) => {
-        switch (statut.toLowerCase()) {
-            case "validé":
-            case "livré":
-                return "bg-green-100 text-green-800"
-            case "en cours":
-            case "en attente":
-                return "bg-yellow-100 text-yellow-800"
-            case "brouillon":
-            case "à venir":
-                return "bg-gray-100 text-gray-800"
-            default:
-                return "bg-blue-100 text-blue-800"
-        }
-    }
 
     useEffect(() => {
         console.log("groupId", groupeId)
