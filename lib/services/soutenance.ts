@@ -1,16 +1,15 @@
 
 const BASE_URL = process.env.NEXT_PUBLIC_SOUTENANCE_URL || "http://localhost:3000/api/soutenances";
-export async function generateSoutenanceSchedule(data:any) {
+export async function generateSoutenanceSchedule(projectId:number) {
     try {
-        const response = await fetch(`${BASE_URL}`,{
+        const response = await fetch(`${BASE_URL}/project/${projectId}`,{
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
         });
-        if(response.status === 200){
-            return await response.json();
+        if(response.status === 201){
+            return true
+        }
+        else {
+            return false
         }
     }catch(err) {
         console.log(err);

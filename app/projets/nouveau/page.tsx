@@ -22,6 +22,7 @@ export default function CreateProjectPage() {
         soutenanceDuration: 0,
         minStudents: 1,
         maxStudents: 1,
+        lieuSoutenance:'',
         url:"",
         deadline: null,
         allowLate: false,
@@ -126,43 +127,44 @@ export default function CreateProjectPage() {
                             </div>
                         </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="minStudents" className="block font-medium">Min étudiant par
-                                        groupe</label>
-                                    <input id="minStudents" name="minStudents" type="number" value={project.minStudents}
-                                           onChange={handleChange} className="w-full border p-2"/>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="maxStudents" className="block font-medium">Max étudiant par
-                                        groupe</label>
-                                    <input id="maxStudents" name="maxStudents" type="number" value={project.maxStudents}
-                                           onChange={handleChange} className="w-full border p-2"/>
-                                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="minStudents" className="block font-medium">Min étudiant par
+                                    groupe</label>
+                                <input id="minStudents" name="minStudents" type="number" value={project.minStudents}
+                                       onChange={handleChange} className="w-full border p-2"/>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="status" className="block font-medium">Retard</label>
-                                    <select id="status" name="status" value={project.allowLate?.toString()}
-                                            onChange={handleChange}
-                                            className="w-full border p-2">
-                                        <option value="true">Oui</option>
-                                        <option value="false">Non</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="mode" className="block font-medium">Type de groupe</label>
-                                    <select id="mode" name="mode" value={project.mode} onChange={handleChange}
-                                            className="w-full border p-2">
-                                        <option value="manual">Manuel</option>
-                                        <option value="random">Aléatoire</option>
-                                        <option value="free">Libre</option>
-                                    </select>
-                                </div>
+                            <div>
+                                <label htmlFor="maxStudents" className="block font-medium">Max étudiant par
+                                    groupe</label>
+                                <input id="maxStudents" name="maxStudents" type="number" value={project.maxStudents}
+                                       onChange={handleChange} className="w-full border p-2"/>
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="status" className="block font-medium">Retard</label>
+                                <select id="status" name="status" value={project.allowLate?.toString()}
+                                        onChange={handleChange}
+                                        className="w-full border p-2">
+                                    <option value="true">Oui</option>
+                                    <option value="false">Non</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label htmlFor="mode" className="block font-medium">Type de groupe</label>
+                                <select id="mode" name="mode" value={project.mode} onChange={handleChange}
+                                        className="w-full border p-2">
+                                    <option value="manual">Manuel</option>
+                                    <option value="random">Aléatoire</option>
+                                    <option value="free">Libre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="status" className="block font-medium">Statut</label>
                                 <select id="status" name="status" value={project.status} onChange={handleChange}
@@ -189,22 +191,37 @@ export default function CreateProjectPage() {
                                     ))}
                                 </select>
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="file" className="block font-medium">Document PDF</label>
-                                <input
-                                    id="file"
-                                    name="file"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={handleChangeFile}
-                                    className="block w-full border p-2 rounded"/>
+                                <label htmlFor="status" className="block font-medium">Sale de soutenance *</label>
+                                <input id="lieuSoutenance" name="lieuSoutenance" type="test" value={project.lieuSoutenance}
+                                       onChange={handleChange} className="w-full border p-2" required/>
                             </div>
 
-                            <button type="submit"
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                                Créer
-                            </button>
+                            <div>
+                                <label htmlFor="promotionId" className="block font-medium">Duré par groupe *</label>
+                                <input id="soutenanceDuration" name="soutenanceDuration" type="number" value={project.soutenanceDuration}
+                                       onChange={handleChange} className="w-full border p-2" required/>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="file" className="block font-medium">Document PDF</label>
+                            <input
+                                id="file"
+                                name="file"
+                                type="file"
+                                accept="application/pdf"
+                                onChange={handleChangeFile}
+                                className="block w-full border p-2 rounded"/>
+                        </div>
+
+                        <button type="submit"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Créer
+                        </button>
                     </form>
                 </div>
             </main>

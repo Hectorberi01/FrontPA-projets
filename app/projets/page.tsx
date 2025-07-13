@@ -196,12 +196,12 @@ export default function ProjetsPage() {
                                   Voir détails
                                 </Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link href={`/projets/${projet.id}/groupes`} className="flex items-center">
-                                  <Users size={16} className="mr-2" />
-                                  Gérer les groupes
-                                </Link>
-                              </DropdownMenuItem>
+                              {/*<DropdownMenuItem asChild>*/}
+                              {/*  <Link href={`/projets/${projet.id}/groupes`} className="flex items-center">*/}
+                              {/*    <Users size={16} className="mr-2" />*/}
+                              {/*    Gérer les groupes*/}
+                              {/*  </Link>*/}
+                              {/*</DropdownMenuItem>*/}
                               <DropdownMenuItem className="text-red-600 flex items-center"
                                  onClick={() => deleteProject(projet.id)}
                               >

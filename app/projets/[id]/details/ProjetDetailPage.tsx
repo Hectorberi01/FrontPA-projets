@@ -68,17 +68,23 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
     };
 
     const handleGenerateSoutenanceOrder = async () => {
-        const data = {
-            projectId: Number(projectId),
-        }
         try {
             const res = await generateSoutenanceSchedule(projets.id)
-            if (res.ok) {
-                alert('Ordre de passage généré avec succès.');
-                // Optionnel : refetch ou recharger les données
-            } else {
-                alert("Erreur lors de la génération.");
+            if(!res) {
+                Swal.fire({
+                    icon: "error",
+                    title: "error",
+                    text: "Something went wrong!",
+                    draggable: true
+                });
+            }else {
+                Swal.fire({
+                    title: "Success!",
+                    icon: "success",
+                    draggable: true
+                });
             }
+            window.location.reload()
         } catch (err) {
             console.error(err);
             alert("Erreur serveur.");
@@ -137,8 +143,15 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                     </div>
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500">Date de fin</h3>
-                                        {/*<p className="mt-1">{projet.dateFin}</p>*/}
-                                        <p className="mt-1">15/06/2023</p>
+                                        <p className="mt-1">
+                                            {projets?.soutenanceDate
+                                                ? new Date(projets.soutenanceDate).toLocaleDateString("fr-FR", {
+                                                    day: "2-digit",
+                                                    month: "long",
+                                                    year: "numeric",
+                                                })
+                                                : "Date non définie"}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -163,23 +176,23 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                         <ClipboardList className="h-5 w-5 text-gray-500"/>
                                         <span>Livrables</span>
                                     </div>
-                                    {/*<span className="font-medium">{projets.livrables.length}</span>*/}
-                                    <span className="font-medium">3</span>
+                                    <span className="font-medium">{projets?.livrables.length}</span>
                                 </div>
                                 <div className="flex items-center justify-between py-2 border-b">
                                     <div className="flex items-center gap-2">
                                         <FileText className="h-5 w-5 text-gray-500"/>
                                         <span>Rapports</span>
                                     </div>
-                                    {/*<span className="font-medium">{projet.rapports.length}</span>*/}
-                                    <span className="font-medium">4</span>
+                                    <span className="font-medium">{projets?.rapports?.length ?? 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <div className="flex items-center gap-2">
                                         <Calendar className="h-5 w-5 text-gray-500" />
                                         <span>Soutenance</span>
                                     </div>
-                                    {/*<span className="font-medium">{projets?.soutenances}</span>*/}
+                                    <span className="font-medium">
+                                        {projets?.soutenanceDate ? new Date(projets.soutenanceDate).toLocaleDateString('fr-FR') : 'Date non définie'}
+                                    </span>
                                 </div>
                             </div>
                         </CardContent>
@@ -321,32 +334,22 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                             <div className="border rounded-lg p-4">
                                                 <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                                                {/*<p className="mt-1 font-medium">{projet.soutenances.date}</p>*/}
-                                                <p className="mt-1 font-medium">{projets?.soutenanceDate}</p>
+                                                <p className="mt-1 font-medium">
+                                                    {new Date(projets?.soutenanceDate).toLocaleDateString("fr-FR", {
+                                                        day: "numeric",
+                                                        month: "long",
+                                                        year: "numeric",
+                                                    })}
+                                                </p>
                                             </div>
                                             <div className="border rounded-lg p-4">
                                                 <h3 className="text-sm font-medium text-gray-500">Lieu</h3>
-                                                {/*<p className="mt-1 font-medium">{projet.soutenances.lieu}</p>*/}
                                                 <p className="mt-1 font-medium">{projets?.lieuSoutenance}</p>
                                             </div>
                                             <div className="border rounded-lg p-4">
                                                 <h3 className="text-sm font-medium text-gray-500">Durée</h3>
-                                                {/*<p className="mt-1 font-medium">{projet.soutenances.duree}</p>*/}
                                                 <p className="mt-1 font-medium">{projets?.soutenanceDuration} minutes par groupe</p>
                                             </div>
-                                        </div>
-
-                                        <div className="mt-6 flex justify-end gap-4">
-                                            {/*<Button asChild>*/}
-                                            {/*    <Link href={`/projets/${projets?.id}/soutenances/edit`}>Générer l'ordre de passage</Link>*/}
-                                            {/*</Button>*/}
-                                            <Button variant="outline" asChild>
-                                                <Link href={`/projets/${projets?.id}/soutenances/planning`}>Voir
-                                                    planning</Link>
-                                            </Button>
-                                            <Button asChild>
-                                                <Link href={`/projets/${projets?.id}/soutenances/edit`}>Modifier</Link>
-                                            </Button>
                                         </div>
                                     </div>
                                 ): (
