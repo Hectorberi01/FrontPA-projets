@@ -374,13 +374,14 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                 </CardHeader>
                                 <CardContent>
                                     {projets?.soutenances && projets.soutenances.length > 0 && !hasEmptyGroups ? (
-                                        <table className="w-full text-left border border-gray-300">
-                                            <thead className="bg-gray-100">
+                                        <table
+                                            className="w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                                            <thead className="bg-green-100 text-green-800">
                                             <tr>
-                                                <th className="p-2 border-b">Ordre</th>
-                                                <th className="p-2 border-b">Nom du groupe</th>
-                                                <th className="p-2 border-b">Début</th>
-                                                <th className="p-2 border-b">Fin</th>
+                                                <th className="p-3 border-b font-semibold">Ordre</th>
+                                                <th className="p-3 border-b font-semibold">Nom du groupe</th>
+                                                <th className="p-3 border-b font-semibold">Début</th>
+                                                <th className="p-3 border-b font-semibold">Fin</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -398,31 +399,35 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                                     };
 
                                                     return (
-                                                        <tr key={index} className="border-t">
-                                                            <td className="p-2">{soutenance.order}</td>
-                                                            <td className="p-2">{group?.name ?? "Groupe inconnu"}</td>
-                                                            <td className="p-2">{formatTime(soutenance.startTime)}</td>
-                                                            <td className="p-2">{formatTime(soutenance.endTime)}</td>
+                                                        <tr key={index}
+                                                            className={index % 2 === 0 ? "bg-white" : "bg-gray-50 hover:bg-gray-100"}>
+                                                            <td className="p-3 border-b">{soutenance.order}</td>
+                                                            <td className="p-3 border-b">{group?.name ?? "Groupe inconnu"}</td>
+                                                            <td className="p-3 border-b">{formatTime(soutenance.startTime)}</td>
+                                                            <td className="p-3 border-b">{formatTime(soutenance.endTime)}</td>
                                                         </tr>
                                                     );
                                                 })}
                                             </tbody>
                                         </table>
+
                                     ) : (
                                         hasEmptyGroups ? (
                                             <div className="text-center text-gray-500 py-6">
-                                                <p className="mb-4">Un ou plusieurs groupes ne contiennent pas d’étudiants.</p>
+                                                <p className="mb-4">Un ou plusieurs groupes ne contiennent pas
+                                                    d’étudiants.</p>
                                             </div>
 
-                                        ):(
+                                        ) : (
                                             <div className="text-center text-gray-500 py-6">
                                                 <p className="mb-4">Aucune soutenance prévue.</p>
-                                                <button onClick={handleGenerateSoutenanceOrder} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                                <button onClick={handleGenerateSoutenanceOrder}
+                                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                                 >
                                                     Générer l’ordre de passage
-                                             </button>
+                                                </button>
                                             </div>
-                                         )
+                                        )
                                     )}
                                 </CardContent>
 
@@ -431,7 +436,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                     </TabsContent>
                     <TabsContent value="section-triche" className="mt-6">
                         <CardContent>
-                            <Card>
+                        <Card>
                             <CardHeader>
                                     <CardTitle>Cohérence entre les livrables</CardTitle>
                                     <CardDescription>
