@@ -22,7 +22,7 @@ export async function similarityProject(projectId: number){}
 
 export async function uploadLivrable( formData: FormData){
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_LIVRABLE_URL}`, {
+        const response = await fetch(`${BASE_URL}`, {
             method: "POST",
             body: formData
         })

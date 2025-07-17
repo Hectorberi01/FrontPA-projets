@@ -74,7 +74,7 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
             {promo && (
-              <Button variant="outline" asChild>
+              <Button variant="outline" asChild className="border-green-600 text-green-700 hover:bg-green-50">
                 <Link href={`/promotions/${promo.id}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Modifier
@@ -91,7 +91,7 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Informations générales</CardTitle>
+              <CardTitle><strong>Informations générales</strong></CardTitle>
               <CardDescription>Détails de la promotion</CardDescription>
             </CardHeader>
             <CardContent>
@@ -125,7 +125,7 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
 
           <Card>
             <CardHeader>
-              <CardTitle>Statistiques</CardTitle>
+              <CardTitle><strong>Statistiques</strong></CardTitle>
               <CardDescription>Aperçu de la promotion</CardDescription>
             </CardHeader>
             <CardContent>
@@ -133,14 +133,14 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
                 <div className="flex items-center justify-between py-2 border-b">
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-gray-500" />
-                    <span>Étudiants</span>
+                    <span><strong>Étudiants</strong></span>
                   </div>
                   <span className="font-medium">{promo?.Students.length}</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b">
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-gray-500" />
-                    <span>Projets</span>
+                    <span><strong>Projets</strong></span>
                   </div>
                   {promo?.Projects && (
                       <span className="font-medium">{promo?.Projects.length}</span>
@@ -297,31 +297,35 @@ export default function PromotionDetailsPage({ promotionId }: PromotionDetailsPa
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {promo?.Projects?.map((projet) => (
-                    <Card key={projet.id}>
-                      <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                          <div>
-                            <h3 className="text-lg font-semibold">{projet.name}</h3>
-                            <p className="text-sm text-gray-500 mt-1">{projet.description}</p>
-                          </div>
-                        </div>
+                  {promo?.Projects?.map((projet: any) => (
+                      <Card key={projet.id}>
+                        <CardContent className="p-6">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{projet.name}</h3>
+                              <p className="text-sm text-gray-500 mt-1">{projet.description || "Aucune description."}</p>
+                            </div>
 
-                        <div className="mt-4 flex justify-end">
-                          <Button variant="outline" size="sm" asChild>
-                            <Link href={`/projets/${projet.id}`} className="flex items-center">Voir détails</Link>
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                            <div className="mt-4 md:mt-0 flex items-center gap-2">
+                              <Button variant="outline" size="sm" asChild>
+                                <Link href={`/projets/${projet.id}`} className="flex items-center">
+                                  Voir détails
+                                </Link>
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                   ))}
                 </div>
+
                 <div className="mt-6 flex justify-end">
                   <Button variant="outline" asChild>
                     <Link href={`/projets?promotion=${promotionId}`}>Voir tous les projets</Link>
                   </Button>
                 </div>
               </CardContent>
+
             </Card>
           </TabsContent>
         </Tabs>

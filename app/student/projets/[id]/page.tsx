@@ -16,6 +16,9 @@ import Swal from "sweetalert2";
 import {DocumentUploadModal} from "@/components/modals/upload-livrable-modal";
 import {uploadLivrable} from "@/lib/services/livrables";
 import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/authContext";
+import {now} from "moment";
+import {color} from "d3-color";
 
 interface report {
   title:string
@@ -35,6 +38,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
   const handleClose = () => setIsOpen(false);
   const [openUpload, setOpenUpload] = useState(false)
   const [estsoutenancepasse, setEstSoutenancePasse] = useState<boolean>();
+  const { user, token } = useAuth();
 
 
   const handleUpload = async (data: { name: string ,description: string, repoLink?: string, file: File }) => {
@@ -87,8 +91,8 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
       groupId: groupId,
       title: data.title,
       content: data.content,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: now,
+      updatedAt: now,
     }
     handleClose();
 
@@ -134,10 +138,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
 
   useEffect(() => {
     if (!projets) return;
-
-    const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-    const user = studentData ? JSON.parse(studentData) : null;
-    const studentId = user?.user?.id;
+    const studentId = user?.id;
 
     const groupe = projets.groups?.find((group: any) =>
         group.groupStudent.some((gs: any) => gs.studentId === studentId)
@@ -237,9 +238,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
               <CardDescription>
                 {/*{projet.groupe ? `${projet.groupe.nom} - ${projet.groupe.membres.length} membres` : "Non assigné"}*/}
                 {(() => {
-                  const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                  const user = studentData ? JSON.parse(studentData) : null;
-                  const studentId = user?.user?.id;
+                  const studentId = user?.id;
 
                   const groupe = projets?.groups?.find((group: any) =>
                       group.groupStudent.some((gs: any) => gs.studentId === studentId)
@@ -253,10 +252,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
             </CardHeader>
             <CardContent>
               {(() => {
-                const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                const user = studentData ? JSON.parse(studentData) : null;
-                const studentId = user?.user?.id;
-
+                const studentId = user?.id;
                 const groupe = projets?.groups?.find((group: any) =>
                     group.groupStudent.some((gs: any) => gs.studentId === studentId)
                 );
@@ -270,14 +266,14 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                                 className="flex items-center justify-between py-2 border-b last:border-0"
                             >
                               <div>
-                                <p className="font-medium">{membre.student.prenom} {membre.student.nom}</p>
-                                <p className="text-xs text-gray-500">{membre.student.email}</p>
+                                <p className="font-medium"><strong>{membre.student.prenom} {membre.student.nom}</strong></p>
+                                <p className="text-xs text-gray-500" style={{color:"blue"}}><strong>{membre.student.email}</strong></p>
                               </div>
                               <Badge variant="outline">{membre.student.role.name}</Badge>
                             </div>
                         ))}
 
-                        <h3> Note du groupe : 10/20</h3>
+                        <h3 style={{color: "green"}}><strong>Note du groupe : 10/20</strong></h3>
                         {/*<Button className="w-full" asChild>*/}
                         {/*  <Link href={`/student/groupes/${groupe.id}`}>*/}
                         {/*    <Users className="mr-2 h-4 w-4" />*/}
@@ -312,10 +308,27 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
         </div>
 
         <Tabs defaultValue="livrables" className="mt-8">
-          <TabsList className="grid grid-cols-3 w-full max-w-md">
-            <TabsTrigger value="livrables">Livrables</TabsTrigger>
-            <TabsTrigger value="rapports">Rapports</TabsTrigger>
-            <TabsTrigger value="soutenance">Soutenance</TabsTrigger>
+          <TabsList className="flex space-x-2 rounded-lg bg-gray-100 p-1 w-full max-w-3xl mx-auto">
+            <TabsTrigger value="livrables"
+                         className="px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black rounded-md transition"
+            >
+              Livrables
+            </TabsTrigger>
+            <TabsTrigger value="rapports"
+                         className="px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black rounded-md transition"
+            >
+              Rapports
+            </TabsTrigger>
+            <TabsTrigger value="soutenance"
+                         className="px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black rounded-md transition"
+            >
+              Soutenance
+            </TabsTrigger>
+            <TabsTrigger value="ordre"
+                         className="px-4 py-2 text-sm font-medium text-gray-600 data-[state=active]:bg-white data-[state=active]:text-black rounded-md transition"
+            >
+              Ordre de passage
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="livrables" className="mt-6">
@@ -347,10 +360,8 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
               </CardHeader>
               <CardContent>
                 {(() => {
-                  const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                  const user = studentData ? JSON.parse(studentData) : null;
-                  const studentId = user?.user?.id;
 
+                  const studentId = user?.id;
                   const groupe = projets?.groups?.find((group: any) =>
                       group.groupStudent.some((gs: any) => gs.studentId === studentId)
                   );
@@ -377,9 +388,16 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                       (livrable: any) => livrable.groupId === groupe.id
                   ) || [];
 
-                  if (livrablesGroupe.length === 0) {
-                    return <p className="text-gray-500">Aucun livrable soumis par votre groupe.</p>;
-                  }
+                  // if (livrablesGroupe.length === 0) {
+                  //   localStorage.setItem("selectedProject", JSON.stringify(projets));
+                  //   localStorage.setItem("groupId", JSON.stringify(groupId))
+                  //   return <Button size="sm" asChild>
+                  //     <Link href={`/student/livrables/${projets.id}/soumettre`}>
+                  //       <ClipboardList className="mr-2 h-4 w-4" />
+                  //       Soumettre
+                  //     </Link>
+                  //   </Button>
+                  // }
 
                   return (
                       <div className="space-y-4">
@@ -402,8 +420,10 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
 
                               <div className="mt-4 flex justify-end">
                                 {livrable.submittedAt ? (
-                                    <Button variant="outline" size="sm" asChild>
-                                      <Link href={`http://localhost:3000/api/livrables/${livrable.id}/download`}>Télécharger votre livrable</Link>
+                                    <Button variant="outline" size="sm" asChild style={{color:"blue"}}
+                                            className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                    >
+                                      <Link href={`http://localhost:3000/api/livrables/download?url=${livrable.fileUrl}`}>Télécharger votre livrable</Link>
                                     </Button>
                                 ) : (
                                     <Button size="sm" asChild>
@@ -415,7 +435,8 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                                 )}
                               </div>
                             </div>
-                        ))}
+                        )
+                        ) }
                       </div>
                   );
                 })()}
@@ -453,10 +474,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
               </CardHeader>
               <CardContent>
                 {(() => {
-                  const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                  const user = studentData ? JSON.parse(studentData) : null;
-                  const studentId = user?.user?.id;
-
+                  const studentId = user?.id;
                   const groupe = projets?.groups?.find((group: any) =>
                       group.groupStudent.some((gs: any) => gs.studentId === studentId)
                   );
@@ -542,10 +560,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
 
               <CardContent>
                 {(() => {
-                  const studentData = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                  const user = studentData ? JSON.parse(studentData) : null;
-                  const studentId = user?.user?.id;
-
+                  const studentId = user?.id;
                   const groupe = projets?.groups?.find((group: any) =>
                       group.groupStudent.some((gs: any) => gs.studentId === studentId)
                   );
@@ -593,28 +608,28 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                               <Calendar size={16} />
                               <span className="text-sm">Date</span>
                             </div>
-                            <p className="font-medium">{date}</p>
+                            <p className="font-medium" style={{color:"blue"}}><strong>{date}</strong></p>
                           </div>
                           <div className="border rounded-lg p-4">
                             <div className="flex items-center gap-2 text-gray-500 mb-1">
                               <Calendar size={16} />
                               <span className="text-sm">Heure</span>
                             </div>
-                            <p className="font-medium">{heure}</p>
+                            <p className="font-medium" style={{color:"green"}}><strong>{heure}</strong></p>
                           </div>
                           <div className="border rounded-lg p-4">
                             <div className="flex items-center gap-2 text-gray-500 mb-1">
                               <Calendar size={16} />
                               <span className="text-sm">Lieu</span>
                             </div>
-                            <p className="font-medium">{lieu}</p>
+                            <p className="font-medium" style={{color:"red"}}><strong>{lieu}</strong></p>
                           </div>
                           <div className="border rounded-lg p-4">
                             <div className="flex items-center gap-2 text-gray-500 mb-1">
                               <Calendar size={16} />
                               <span className="text-sm">Durée</span>
                             </div>
-                            <p className="font-medium">{duree}</p>
+                            <p className="font-medium"><strong>{duree}</strong></p>
                           </div>
                         </div>
 
@@ -632,6 +647,63 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
 
             </Card>
           </TabsContent>
+          <TabsContent value="ordre" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-medium text-gray-700">Ordre de passage</CardTitle>
+                  <CardDescription className="text-xs text-gray-500">Ordre de passage pour la soutenance</CardDescription>
+                </div>
+              </CardHeader>
+
+              <CardContent>
+                {projets?.soutenances && projets.soutenances.length > 0  ? (
+                    <table className="w-full text-sm text-left border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                      <thead className="bg-green-100 text-green-800">
+                      <tr>
+                        <th className="p-3 border-b font-semibold">Ordre</th>
+                        <th className="p-3 border-b font-semibold">Nom du groupe</th>
+                        <th className="p-3 border-b font-semibold">Début</th>
+                        <th className="p-3 border-b font-semibold">Fin</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {projets.soutenances
+                          .sort((a: any, b: any) => a.order - b.order)
+                          .map((soutenance: any, index: number) => {
+                            const group = projets.groups.find((g: any) => g.id === soutenance.groupId);
+
+                            const formatTime = (iso: string) => {
+                              const date = new Date(iso);
+                              return date.toLocaleTimeString("fr-FR", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              });
+                            };
+
+                            return (
+                                <tr
+                                    key={index}
+                                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50 hover:bg-gray-100"}
+                                >
+                                  <td className="p-3 border-b">{soutenance.order}</td>
+                                  <td className="p-3 border-b">{group?.name ?? "Groupe inconnu"}</td>
+                                  <td className="p-3 border-b">{formatTime(soutenance.startTime)}</td>
+                                  <td className="p-3 border-b">{formatTime(soutenance.endTime)}</td>
+                                </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                ) : (
+                    <div className="text-center text-gray-500 italic">
+                      Aucune soutenance prévue pour le moment.
+                    </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
       </div>
     </StudentLayout>

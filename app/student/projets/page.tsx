@@ -9,24 +9,22 @@ import Link from "next/link"
 import {useEffect, useState} from "react";
 import {getPromotionByStudentId} from "@/lib/services/promotionService";
 import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/authContext";
 
 export default function StudentProjetsPage() {
   const [promotions, setPromotion] = useState<any>()
   const router = useRouter()
+  const { user, token } = useAuth();
+
 
   const fetchProjects = async () => {
     try {
-      const studentData = localStorage.getItem("user");
-
-      if (!studentData) {
-        router.push("/login");
+      if (!user) {
+        router.push("/");
         return;
       }
 
-      const user = JSON.parse(studentData);
-      console.log("user", user);
-
-      const userId = user?.user.id
+      const userId = user.id;
       if (!userId) {
         console.warn("User ID not found in localStorage.");
         return;
@@ -101,9 +99,7 @@ export default function StudentProjetsPage() {
                           {project.groups && (
                               <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                 {(() => {
-                                  const studentData = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
-                                  const user = studentData ? JSON.parse(studentData) : null;
-                                  const studentId = user?.user?.id;
+                                  const studentId = user?.id;
 
                                   let myGroupId: number | null = null;
 
@@ -114,7 +110,9 @@ export default function StudentProjetsPage() {
                                   });
 
                                   return myGroupId ? (
-                                      <Button variant="outline" size="sm" asChild>
+                                      <Button variant="outline" size="sm" asChild
+                                              className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                      >
                                         <Link href={`/student/projets/${project.id}`}>Voir mon groupe</Link>
                                       </Button>
                                   ) : (
@@ -132,7 +130,10 @@ export default function StudentProjetsPage() {
                                   );
                                 })()}
 
-                                <Button variant="ghost" size="sm" asChild>
+                                <Button variant="ghost" size="sm" asChild
+                                        style={{border:"blue"}}
+                                        className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                                >
                                   <Link href={`/student/projets/${project.id}`}>
                                     <Eye className="mr-2 h-4 w-4" />
                                     Détails

@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FaGoogle, FaMicrosoft } from "react-icons/fa"
-import {login} from "@/lib/services/auth";
+import {loginData} from "@/lib/services/auth";
+import {useAuth} from "@/hooks/authContext";
 
 declare global {
   interface Window {
@@ -23,6 +24,8 @@ export function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [userRole, setUserRole] = useState<"enseignant" | "etudiant">("enseignant")
+
+  const { login } = useAuth();
 
 
   useEffect(() => {
@@ -41,32 +44,20 @@ export function LoginForm() {
       password,
     }
     try {
-      const response = await login(data)
-      if (response){
-        const userStr = localStorage.getItem("user");
-        console.log("userStr", userStr)
-        if (userStr) {
-          const user = JSON.parse(userStr);
-          if (user.user.role.name === "Teacher" || user.user.role.name === "ADMIN") {
+      const response = await loginData(data)
+      if (response !== null) {
+        login(response.user, response.token)
+          if (response.user.role.name === "Teacher".toUpperCase() || response.user.role.name === "ADMIN") {
             router.push("/dashboard");
-          } else if (user.user.role.name === "student") {
+          } else if (response.user.role.name === "student".toUpperCase()) {
             router.push("/student/projets");
           }
-        }
+      }else{
+        router.push("/");
       }
     }catch (error) {
       console.error(error)
     }
-    // Simulation d'authentification
-    /*setTimeout(() => {
-      setIsLoading(false)
-      // Redirection vers le dashboard ou l'interface étudiant selon le rôle
-      if (userRole === "enseignant") {
-        router.push("/dashboard")
-      } else {
-        router.push("/student/projets")
-      }
-    }, 1500)*/
   }
 
   const handleOAuthLogin = (provider: string) => {

@@ -1,6 +1,6 @@
 "use client";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { deliverableService } from "@/lib/services/livrables";
 
 export default function DeliverableSubmissionForm() {
@@ -69,6 +69,22 @@ export default function DeliverableSubmissionForm() {
       setMessageType("");
     }
   };
+  useEffect(() => {
+      const getprojetdetails = async ()=>{
+        const projetString = localStorage.getItem("selectedProject");
+        const groupIdSting = localStorage.getItem("groupId");
+        if(projetString === null) return [];
+        if (groupIdSting === null) return [];
+        const projetData = JSON.parse(projetString);
+        const groupId = JSON.parse(groupIdSting);
+
+        setGroupId(groupId);
+        setProjectId(projetData.id)
+
+      }
+
+      getprojetdetails();
+  },[])
  return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
