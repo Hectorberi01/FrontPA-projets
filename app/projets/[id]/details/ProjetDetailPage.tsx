@@ -200,13 +200,15 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                 </div>
 
                 <Tabs defaultValue="groupes" className="mt-8">
-                    <TabsList className="grid grid-cols-6 w-full max-w-2xl">
+                    <TabsList className="grid grid-cols-7 w-full max-w-2xl">
                         <TabsTrigger value="groupes" className="w-full text-center">Groupes</TabsTrigger>
                         <TabsTrigger value="livrables" className="w-full text-center">Livrables</TabsTrigger>
                         <TabsTrigger value="rapports" className="w-full text-center">Rapports</TabsTrigger>
                         <TabsTrigger value="soutenances" className="w-full text-center">Soutenances</TabsTrigger>
                         <TabsTrigger value="ordre-passage" className="w-full text-center">Passage</TabsTrigger>
                         <TabsTrigger value="section-triche" className="w-full text-center">Triche</TabsTrigger>
+                        <TabsTrigger value="notation" className="w-full text-center">Notation</TabsTrigger>
+
                     </TabsList>
 
                     <TabsContent value="groupes" className="mt-6">
@@ -495,6 +497,35 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                             </Card>
                         </CardContent>
                     </TabsContent>
+                    <TabsContent value="notation" className="mt-6">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Notation</CardTitle>
+                                <CardDescription>Accédez aux grilles de notation par groupe</CardDescription>
+                            </div>
+                            </CardHeader>
+                            <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {projets?.groups?.map((groupe: any) => (
+                                <Card key={groupe.id}>
+                                    <CardContent className="p-4 space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="font-semibold">{groupe.name}</h3>
+                                    </div>
+                                    <Button variant="default" asChild>
+                                        <Link href={`/projets/${projets.id}/groupes/${groupe.id}?tab=notation`}>
+                                        Voir les grilles de notation
+                                        </Link>
+                                    </Button>
+                                    </CardContent>
+                                </Card>
+                                ))}
+                            </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
                 </Tabs>
             </div>
         </DashboardLayout>
