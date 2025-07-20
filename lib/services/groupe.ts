@@ -28,7 +28,7 @@ export async function fecthGroupeById(id: number) {
         console.log(data);
         return data;
     }catch (error) {
-        console.error("Error fetching groupe id:", id);
+        console.log("Error fetching groupe id:", error);
     }
 }
 

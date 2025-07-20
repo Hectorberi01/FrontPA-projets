@@ -634,13 +634,13 @@ const getTotalPonderation = () => {
                                                                   typeEvaluation: critere.typeEvaluation
                                                               })
                                                           }}
-                                                        disabled={grille.validee}
+                                                        // disabled={grille.validee}
                                                     >
                                                         <Edit className="h-3 w-3" />
                                                     </Button>
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
-                                                            <Button size="sm" variant="destructive" disabled={grille.validee}>
+                                                            <Button size="sm" variant="destructive">
                                                                 <Trash2 className="h-3 w-3" />
                                                             </Button>
                                                         </AlertDialogTrigger>
