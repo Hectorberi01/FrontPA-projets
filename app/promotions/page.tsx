@@ -8,9 +8,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { BookOpen, Download, Eye, Filter, MoreHorizontal, Plus, Search, Trash, Upload, Users } from "lucide-react"
 import Link from "next/link"
-import { Promotion, PromotionWithDetails } from "@/lib/types/promotion"
 import { use, useEffect, useState } from "react"
-import { getPromotions } from "@/lib/services/promotionService"
+import {deletePromotion, getPromotions} from "@/lib/services/promotionService"
+import Swal from "sweetalert2";
 
 export default function PromotionsPage() {
   const [promotion, setPromotion] = useState<any[]>([])
@@ -22,7 +22,6 @@ export default function PromotionsPage() {
     setError(null)
     try {
       const response = await getPromotions()
-      console.log("Promotions:", response)
       setPromotion(response)
     } catch (error) {
       setError(error as string)
@@ -35,6 +34,31 @@ export default function PromotionsPage() {
   useEffect(() => {
     fetchPromotions()
   }, [])
+
+  const deletePromo = async (promotionId: string) => {
+    try {
+      const id = parseInt(promotionId)
+      const response = await deletePromotion(id)
+      if(!response) {
+        Swal.fire({
+          icon: "error",
+          title: "error",
+          text: "Something went wrong!",
+          draggable: true
+        });
+      }else {
+        Swal.fire({
+          title: "Success!",
+          icon: "success",
+          draggable: true
+        });
+      }
+
+      window.location.reload()
+    }catch (error) {
+      console.error(error)
+    }
+  }
   
   return (
     <DashboardLayout>
@@ -45,10 +69,10 @@ export default function PromotionsPage() {
             <p className="text-gray-600 mt-1">Gérez toutes vos promotions</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Importer
-            </Button>
+            {/*<Button variant="outline" className="flex items-center gap-2">*/}
+            {/*  <Upload className="h-4 w-4" />*/}
+            {/*  Importer*/}
+            {/*</Button>*/}
             <Button asChild>
               <Link href="/promotions/nouvelle">
                 <Plus className="mr-2 h-4 w-4" />
@@ -83,10 +107,10 @@ export default function PromotionsPage() {
                     <DropdownMenuItem>2020-2021</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline">
-                  <Download size={16} className="mr-2" />
-                  Exporter
-                </Button>
+                {/*<Button variant="outline">*/}
+                {/*  <Download size={16} className="mr-2" />*/}
+                {/*  Exporter*/}
+                {/*</Button>*/}
               </div>
             </div>
 
@@ -119,11 +143,17 @@ export default function PromotionsPage() {
                         <div className="flex items-center gap-1">
                           <BookOpen size={16} />
                           {/* <span>{promotion.nombreProjets}</span> */}
-                          <span>{promotion.numberOfProjects}</span>
+                          <span>{promotion.projects.length}</span>
                         </div>
                       </TableCell>
-                      {/* <TableCell>{promotion.dateCreation}</TableCell> */}
-                      <TableCell>2024</TableCell>
+                       <TableCell>
+                         {new Date(promotion.createdAt).toLocaleDateString("fr-FR", {
+                           day: "numeric",
+                           month: "long",
+                           year: "numeric",
+                         })}
+                       </TableCell>
+                      {/*<TableCell>2024</TableCell>*/}
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -140,13 +170,15 @@ export default function PromotionsPage() {
                                 Voir détails
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/promotions/${promotion.id}/etudiants`} className="flex items-center">
-                                <Users size={16} className="mr-2" />
-                                Gérer les étudiants
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 flex items-center">
+                            {/*<DropdownMenuItem asChild>*/}
+                            {/*  <Link href={`/promotions/${promotion.id}/etudiants`} className="flex items-center">*/}
+                            {/*    <Users size={16} className="mr-2" />*/}
+                            {/*    Gérer les étudiants*/}
+                            {/*  </Link>*/}
+                            {/*</DropdownMenuItem>*/}
+                            <DropdownMenuItem
+                                className="text-red-600 flex items-center"
+                                onClick={() => deletePromo(promotion.id)}>
                               <Trash size={16} className="mr-2" />
                               Supprimer
                             </DropdownMenuItem>
