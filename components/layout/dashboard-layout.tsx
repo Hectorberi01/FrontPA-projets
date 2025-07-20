@@ -77,7 +77,7 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
     ...(userRole === "enseignant"
       ? [
           { href: "/soutenances", icon: <Calendar size={20} />, label: "Soutenances" },
-          { href: "/notations", icon: <Award size={20} />, label: "Notations" },
+          // { href: "/notations", icon: <Award size={20} />, label: "Notations" },
           { href: "/utilisateur", icon: <Users size={20} />, label: "utilisateur" },
         ]
       : []),
