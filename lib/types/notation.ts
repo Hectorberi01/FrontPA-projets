@@ -15,25 +15,37 @@ export interface NoteCritere {
 }
 
 
-export type Critere = {
-    id: number;
-    nom: string;
-    poids: number; // en pourcentage
-    commentaire?: string;
-};
+export interface Critere {
+    id: number
+    nom: string
+    poids: number
+    commentaire?: string
+    typeEvaluation: 'groupe' | 'individuel' // AJOUTER
+}
 
-export type Grille = {
-    id: number;
-    titre: string;
-    type: 'livrable' | 'rapport' | 'soutenance';
-    projetId: number;
-    noteGlobale?: number; // calculée à partir des critères
-    criteres: Critere[];
-    commentairesGlobaux?: string;
-    statut: 'en cours' | 'validée';
-};
-
-export const mockGrilles: Grille[] = [
+export interface Grille {
+    note: number;
+    id: string
+    titre: string
+    type: 'livrable' | 'rapport' | 'soutenance'
+    projetId: number
+    statut: 'brouillon' | 'en_cours' | 'validee' | 'publiee' // MODIFIER
+    ponderationGlobale: number // AJOUTER
+    criteres: Critere[]
+    commentairesGlobaux?: string
+ 
+}
+export interface NotationIndividuelle {
+    id: string
+    grilleId: string
+    studentId: number
+    groupeId: number
+    critereId: number
+    note: number
+    commentaire?: string
+   
+}
+/*export const mockGrilles: Grille[] = [
     {
         id: 1,
         titre: "Grille Livrable 1",
@@ -72,5 +84,5 @@ export const mockGrilles: Grille[] = [
         noteGlobale: 17.5,
         commentairesGlobaux: "Bonne soutenance, équipe à l’aise à l’oral.",
     },
-];
+];*/
 

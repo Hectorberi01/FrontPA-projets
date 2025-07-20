@@ -19,7 +19,7 @@ export async function fecthGroupeById(id: number) {
     console.log(`Fetching groupes with id ${id}`);
     try{
         const response = await fetch(`${process.env.NEXT_PUBLIC_GROUP_URL}/${id}`)
-        console.log("usl", `${process.env.NEXT_PUBLIC_GROUP_URL}/${id}`)
+        console.log("usl", `${process.env.NEXT_PUBLIC_GROUP_URL}`)
         console.log(response);
         if (response.status !== 200) {
             throw new Error("Network response was not ok");
