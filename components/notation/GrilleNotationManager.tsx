@@ -80,7 +80,7 @@ export default function GrilleNotationManager({
         ponderationGlobale: 0
     })
 
-    const BASE_URL = process.env.NEXT_PUBLIC_NOTATION_URL || "http://localhost:3000/api/notations"
+    const BASE_URL = process.env.NEXT_PUBLIC_NOTATION_URL || "http://localhost:3000"
 
     const [newCritere, setNewCritere] = useState<{
         nom: string;
@@ -301,38 +301,82 @@ const handleUpdateGrille = async (grilleId: string) => {
         }
     }
 
-    const handleUpdateCritere = (grilleId: string, critereId: number) => {
-        setGrilles(prev => prev.map(g => 
-            g.id === grilleId 
-                ? {
-                    ...g,
-                    criteres: g.criteres.map(c => 
-                        c.id === critereId ? { ...c, ...editCritereData } : c
-                    )
-                }
-                : g
-        ))
+   const handleUpdateCritere = async (
+      grilleId: string,
+      critereId: number,
+      updatedData: {
+        nom?: string;
+        poids?: number;
+        description?: string;
+        typeEvaluation?: 'groupe' | 'individuel';
+      }
+  ) => {
+    try {
+      const res = await fetch(`${BASE_URL}/${grilleId}/criteres/${critereId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
 
-        setEditingCritere(null)
-        setEditCritereData({})
-        
-        toast({
+      if (!res.ok) {
+        throw new Error('Erreur serveur');
+      }
+      const updatedCritere = await res.json();
+
+     toast({
             title: "Succès",
             description: "Critère mis à jour avec succès"
         })
-    }
 
-    const handleDeleteCritere = (grilleId: string, critereId: number) => {
-        setGrilles(prev => prev.map(g => 
-            g.id === grilleId 
-                ? { ...g, criteres: g.criteres.filter(c => c.id !== critereId) }
-                : g
-        ))
-        
-        toast({
-            title: "Succès",
-            description: "Critère supprimé avec succès"
+      // Mise à jour de l'état local
+      setGrilles((prevGrilles) =>
+        prevGrilles.map((grille) => {
+          if (grille.id === grilleId) {
+            return {
+              ...grille,
+              criteres: grille.criteres.map((critere) =>
+                critere.id === critereId ? updatedCritere : critere
+              ),
+            };
+          }
+          return grille;
         })
+      );
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour du critère :', err);
+    }
+  };
+
+   
+
+    const handleDeleteCritere = async (grilleId: string, critereId: number) => {
+         try {
+
+           await fetch(`${BASE_URL}/${grilleId}/criteres/${critereId}`, {
+              method: 'DELETE',
+            });
+            toast({
+                    title: "Succès",
+                    description: "Critère supprimé avec succès"
+                })
+            // Mettre à jour l'état local après suppression
+            setGrilles((prevGrilles) =>
+              prevGrilles.map((grille) => {
+                if (grille.id === grilleId) {
+                  return {
+                    ...grille,
+                    criteres: grille.criteres.filter((critere) => critere.id !== critereId),
+                  };
+                }
+                return grille;
+              })
+            );
+          } catch (error) {
+            console.error("Erreur lors de la suppression du critère :", error);
+          }
+       
     }
 
 const getTotalPonderation = () => {
@@ -516,13 +560,13 @@ const getTotalPonderation = () => {
                                                         ponderationGlobale: grille.ponderationGlobale * 100 
                                                     })
                                                 }}
-                                                disabled={grille.validee}
+                                            
                                             >
                                                 <Edit className="h-4 w-4" />
                                             </Button>
                                             <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <Button size="sm" variant="destructive" disabled={grille.validee}>
+                                                    <Button size="sm" variant="destructive" >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </AlertDialogTrigger>
@@ -599,9 +643,9 @@ const getTotalPonderation = () => {
                                                   </SelectContent>
                                               </Select>
                                               <div className="flex gap-2">
-                                                  <Button size="sm" onClick={() => handleUpdateCritere(grille.id, critere.id)}>
-                                                      <Save className="h-4 w-4" />
-                                                  </Button>
+                                                <Button size="sm" onClick={() => handleUpdateCritere(grille.id, critere.id, editCritereData)}>
+                                                    <Save className="h-4 w-4" />
+                                                </Button>
                                                   <Button size="sm" variant="outline" onClick={() => setEditingCritere(null)}>
                                                       <X className="h-4 w-4" />
                                                   </Button>
@@ -726,7 +770,7 @@ const getTotalPonderation = () => {
                                         variant="outline" 
                                         size="sm" 
                                         onClick={() => setShowCreateCritere(grille.id)}
-                                        disabled={grille.validee}
+                                      
                                         className="w-full"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />

@@ -6,11 +6,12 @@ import {createProject} from "@/lib/services/project";
 import { useRouter } from "next/navigation";
 
 import {getPromotions} from "@/lib/services/promotionService";
-import {boolean} from "zod";
+import Swal from "sweetalert2";
 interface promo {
     id: number;
     name: string;
 }
+
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -56,23 +57,81 @@ export default function CreateProjectPage() {
             [name]: parsedValue,
         }));
     };
+const validateProject = () => {
+    const errors: string[] = [];
+
+    const now = new Date();
+
+    // Vérifier que la soutenance est dans le futur
+    if (project.soutenanceDate && new Date(project.soutenanceDate) < now) {
+        errors.push("La date de soutenance doit être dans le futur.");
+    }
+
+    // Vérifier que la deadline est dans le futur
+    if (project.deadline && new Date(project.deadline) < now) {
+        errors.push("La deadline doit être dans le futur.");
+    }
+
+    // Vérifier min/max étudiants
+    if (project.minStudents < 1) {
+        errors.push("Le nombre minimum d'étudiants doit être au moins 1.");
+    }
+
+    if (project.maxStudents < project.minStudents) {
+        errors.push("Le nombre maximum d'étudiants doit être supérieur ou égal au minimum.");
+    }
+
+    // Vérifier durée soutenance > 0
+    if (project.soutenanceDuration <= 0) {
+        errors.push("La durée de soutenance doit être supérieure à 0.");
+    }
+
+    // Vérifier qu'une promotion est sélectionnée
+    if (!project.promotionId) {
+        errors.push("Veuillez sélectionner une promotion.");
+    }
+
+    return errors;
+};
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        const errors = validateProject();
+        if (errors.length > 0) {
+           // alert(errors.join("\n"));
+             Swal.fire({
+                    title: errors.join("\n")    ,
+                    icon: "error",
+                    draggable: true
+                });
+            return;
+        }
         try {
             const result = await createProject(project,file)
 
             if (!result) {
-                alert("Une erreur s'est produite");
+                   Swal.fire({
+                    title: "errer",
+                    icon: "error",
+                    draggable: true
+                });
                 return;
             }
-
-            alert("Projet créé avec succès ✅");
+                 Swal.fire({
+                    title: "Projet créé avec succès ✅",
+                    icon: "success",
+                    draggable: true
+                });
+           
+             
             router.push("/projets");
         } catch (err) {
             console.error(err);
-            alert("Erreur ❌ lors de la création du projet");
+             Swal.fire({
+                    title: "Erreur ❌ lors de la création du projet",
+                    icon: "error",
+                    draggable: true
+                });
         }
     };
 
@@ -145,13 +204,12 @@ export default function CreateProjectPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="status" className="block font-medium">Retard</label>
-                                <select id="status" name="status" value={project.allowLate?.toString()}
-                                        onChange={handleChange}
-                                        className="w-full border p-2">
+                                <label htmlFor="allowLate" className="block font-medium">Retard</label>
+                                <select id="allowLate" name="allowLate" value={project.allowLate?.toString()} onChange={handleChange}>
                                     <option value="true">Oui</option>
                                     <option value="false">Non</option>
                                 </select>
+
                             </div>
 
                             <div>
@@ -196,7 +254,7 @@ export default function CreateProjectPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="status" className="block font-medium">Sale de soutenance *</label>
-                                <input id="lieuSoutenance" name="lieuSoutenance" type="test" value={project.lieuSoutenance}
+                                <input id="lieuSoutenance" name="lieuSoutenance" type="text" value={project.lieuSoutenance}
                                        onChange={handleChange} className="w-full border p-2" required/>
                             </div>
 
@@ -225,7 +283,7 @@ export default function CreateProjectPage() {
                     </form>
                 </div>
             </main>
-            );
+           
         </DashboardLayout>
     )
 }

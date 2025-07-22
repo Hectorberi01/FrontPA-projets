@@ -273,7 +273,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                             </div>
                         ))}
 
-                        <h3 style={{color: "green"}}><strong>Note du groupe : 10/20</strong></h3>
+                        <h3 style={{color: "green"}}><strong>Note du groupe : </strong></h3>
                         {/*<Button className="w-full" asChild>*/}
                         {/*  <Link href={`/student/groupes/${groupe.id}`}>*/}
                         {/*    <Users className="mr-2 h-4 w-4" />*/}

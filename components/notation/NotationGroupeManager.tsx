@@ -48,7 +48,25 @@ export default function NotationGroupeManager({
     const [commentaireProjet, setCommentaireProjet] = useState("")
     const [grillesValidees, setGrillesValidees] = useState<Record<string, boolean>>({})
     const [notationFinalisee, setNotationFinalisee] = useState(false)
-const debouncedSaveNote = useCallback(
+const transformNotes = (rawNotes: any[]) => {
+  const structured: Record<string, Record<number, { note: number; commentaire: string }>> = {};
+
+  rawNotes.forEach(note => {
+    if (!structured[note.grilleId]) {
+      structured[note.grilleId] = {};
+    }
+
+    structured[note.grilleId][note.critereId] = {
+      note: parseFloat(note.note),
+      commentaire: note.commentaire || "",
+    };
+  });
+
+  return structured;
+};
+
+
+    const debouncedSaveNote = useCallback(
   debounce(async (args) => {
     try {
       await gradingApi.saveNoteForCritere(args.projectId, args.groupId, args.payload)
@@ -74,20 +92,44 @@ useEffect(() => {
   const loadExistingNotation = async () => {
     try {
       const existingNotation = await gradingApi.getGroupNotation(projectId, groupId);
+
       if (existingNotation) {
-        setNotes(existingNotation.notes || {});
-        setCommentairesGlobaux(existingNotation.commentairesGlobaux || {});
+        const transformedNotes = transformNotes(existingNotation.notes);
+        setNotes(transformedNotes);
+
+        // Set commentaire projet
         setCommentaireProjet(existingNotation.commentaireProjet || "");
-        setGrillesValidees(existingNotation.grillesValidees || {});
-        setNotationFinalisee(existingNotation.notationFinalisee || false);
+
+        // Commentaires globaux non fournis par API -> tu peux les initialiser à vide
+        const commentaires: Record<string, string> = {};
+        (existingNotation.grillesValidees || []).forEach((grille: { id: string | number }) => {
+          commentaires[grille.id] = "";
+        });
+        setCommentairesGlobaux(commentaires);
+
+        // Marquer les grilles comme validées
+        const valides: Record<string, boolean> = {};
+        (existingNotation.grillesValidees || []).forEach((grille: { id: string | number }) => {
+          valides[grille.id] = true;
+        });
+        setGrillesValidees(valides);
+
+        // Vérifie s’il y a une notation finalisée
+        setNotationFinalisee(!!existingNotation.notationFinalisee);
       }
     } catch (error) {
-      toast({ title: "Erreur", description: "Impossible de charger la notation", variant: "destructive" });
+      console.error(error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger la notation",
+        variant: "destructive"
+      });
     }
   };
 
   loadExistingNotation();
 }, [projectId, groupId]);
+
 
 // Modifier handleNoteChange pour sauvegarder en temps réel
 const handleNoteChange = async (grilleId: string, critereId: number, note?: number, commentaire?: string, studentId?: number) => {
@@ -175,12 +217,23 @@ const finaliserNotation = async () => {
   }
 
   try {
+    const transformNotesForBackend = () => {
+    return grilles.map(grille => {
+            const critNotes = notes[grille.id] || {};
+            return {
+            poids: grille.ponderationGlobale,
+            ...critNotes
+            };
+        });
+    };
+
+    const notesFormatees = transformNotesForBackend();
     await gradingApi.finalizeNotation(projectId, groupId, {
-      notes,
-      commentairesGlobaux,
-      commentaireProjet
+    notes: notesFormatees,
+    commentairesGlobaux,
+    commentaireProjet
     });
-    
+
     setNotationFinalisee(true);
     toast({
       title: "Succès",
@@ -417,7 +470,7 @@ const finaliserNotation = async () => {
                                                                     value || 0
                                                                 )
                                                             }}
-                                                            disabled={grillesValidees[grille.id] || notationFinalisee}
+                                                           // disabled={grillesValidees[grille.id] || notationFinalisee}
                                                             className="text-lg font-semibold"
                                                         />
                                                     </div>
@@ -434,7 +487,7 @@ const finaliserNotation = async () => {
                                                                 undefined, 
                                                                 e.target.value
                                                             )}
-                                                            disabled={grillesValidees[grille.id] || notationFinalisee}
+                                                            //disabled={grillesValidees[grille.id] || notationFinalisee}
                                                             placeholder="Commentaire sur ce critère..."
                                                             rows={2}
                                                         />
@@ -456,7 +509,7 @@ const finaliserNotation = async () => {
                                                 ...prev,
                                                 [grille.id]: e.target.value
                                             }))}
-                                            disabled={grillesValidees[grille.id] || notationFinalisee}
+                                           // disabled={grillesValidees[grille.id] || notationFinalisee}
                                             placeholder="Commentaire général sur cette partie du projet..."
                                             rows={3}
                                         />
@@ -475,7 +528,7 @@ const finaliserNotation = async () => {
                                         
                                         <Button
                                             onClick={() => validerGrille(grille.id)}
-                                            disabled={!isGrilleComplete(grille) || grillesValidees[grille.id] || notationFinalisee}
+                                           // disabled={!isGrilleComplete(grille) || grillesValidees[grille.id] || notationFinalisee}
                                             className="min-w-32"
                                         >
                                             {grillesValidees[grille.id] ? (
@@ -545,7 +598,7 @@ const finaliserNotation = async () => {
                             id="commentaire-projet"
                             value={commentaireProjet}
                             onChange={(e) => setCommentaireProjet(e.target.value)}
-                            disabled={notationFinalisee}
+                           // disabled={notationFinalisee}
                             placeholder="Commentaire général sur l'ensemble du travail du groupe..."
                             rows={4}
                         />
@@ -578,7 +631,7 @@ const finaliserNotation = async () => {
                             
                             <Button
                                 onClick={finaliserNotation}
-                                disabled={!grilles.every(g => grillesValidees[g.id]) || notationFinalisee}
+                               // disabled={!grilles.every(g => grillesValidees[g.id]) || notationFinalisee}
                                 size="lg"
                                 className="bg-blue-600 hover:bg-blue-700"
                             >
