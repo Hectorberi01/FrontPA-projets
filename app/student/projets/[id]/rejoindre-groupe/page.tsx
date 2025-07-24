@@ -36,8 +36,10 @@ export default function RejoindreGroupePage({ params }: { params: Promise<{ id: 
     if(userStore){
       const user = JSON.parse(userStore);
       console.log("user", user);
-      const userId  = user.user.id;
-      setUserId(userId);
+     // const userId  = user.user.id;
+      const userId  = user.id;
+      
+     setUserId(userId);
     }
 
     localStorage.removeItem("selectedProject");

@@ -61,7 +61,7 @@ export async function updateProject(project: any,id : number) {
 
 export async function DeleteProject(projectId: number) {
     try {
-        const response = await fetch(`${BASE_URL}/api/projects/${projectId}`, {
+        const response = await fetch(`${BASE_URL}/${projectId}`, {
             method: 'DELETE',
         });
 

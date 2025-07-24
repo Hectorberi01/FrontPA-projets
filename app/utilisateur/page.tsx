@@ -29,6 +29,9 @@ import {getAll} from "@/lib/services/userService";
 export default function UtilisateursPage() {
 
     const [utilisateurs, setUtilisateurs] = useState([])
+    const [searchQuery, setSearchQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState("Tous");
+    const [statutFilter, setStatutFilter] = useState("Tous");
 
     useEffect(() => {
         const fetchUtilisateur = async ()=>{
@@ -43,6 +46,23 @@ export default function UtilisateursPage() {
         fetchUtilisateur()
 
     }, []);
+const utilisateursFiltres = utilisateurs.filter((u: any) => {
+  const matchNom = `${u.prenom} ${u.nom}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                   u.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const matchRole =
+    roleFilter === "Tous" || 
+    (roleFilter === "Enseignants" && u.role === "TEACHER") ||
+    (roleFilter === "Étudiants" && u.role === "STUDENT") ||
+    (roleFilter === "Administrateurs" && u.role === "Administrateur");
+
+  const matchStatut =
+    statutFilter === "Tous" ||
+    (statutFilter === "Actifs" && u.statut === "Actif") ||
+    (statutFilter === "Inactifs" && u.statut === "Inactif");
+
+  return matchNom && matchRole && matchStatut;
+});
 
     const statistiques = {
         total: utilisateurs.length,
@@ -142,7 +162,13 @@ export default function UtilisateursPage() {
                         <div className="flex flex-col md:flex-row gap-4 mb-6">
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                <Input placeholder="Rechercher un utilisateur..." className="pl-10" />
+                           <Input
+                            placeholder="Rechercher un utilisateur..."
+                            className="pl-10"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+
                             </div>
                             <div className="flex gap-2">
                                 <DropdownMenu>
@@ -154,10 +180,11 @@ export default function UtilisateursPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Tous les rôles</DropdownMenuItem>
-                                        <DropdownMenuItem>Enseignants</DropdownMenuItem>
-                                        <DropdownMenuItem>Étudiants</DropdownMenuItem>
-                                        <DropdownMenuItem>Administrateurs</DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => setRoleFilter("Tous")}>Tous les rôles</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setRoleFilter("Enseignants")}>Enseignants</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setRoleFilter("Étudiants")}>Étudiants</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setRoleFilter("Administrateurs")}>Administrateurs</DropdownMenuItem>
+
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 <DropdownMenu>
@@ -169,9 +196,10 @@ export default function UtilisateursPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem>Tous les statuts</DropdownMenuItem>
-                                        <DropdownMenuItem>Actifs</DropdownMenuItem>
-                                        <DropdownMenuItem>Inactifs</DropdownMenuItem>
+                                       <DropdownMenuItem onClick={() => setStatutFilter("Tous")}>Tous les statuts</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setStatutFilter("Actifs")}>Actifs</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setStatutFilter("Inactifs")}>Inactifs</DropdownMenuItem>
+
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                                 <Button variant="outline">
@@ -195,7 +223,7 @@ export default function UtilisateursPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {utilisateurs.map((utilisateur:any) => (
+                                    {utilisateursFiltres.map((utilisateur: any) => (
                                         <TableRow key={utilisateur.id}>
                                             <TableCell>
                                                 <div className="flex items-center gap-3">

@@ -133,3 +133,41 @@ export async function AllStudents(){
         throw new Error("Failed to fetch students");
     }
 }
+export async function getUserById(userId:number ){
+
+    
+        const response = await fetch(`${USER_URL}/${userId}`, {
+            method: "get",
+            headers: {
+                "Content-Type": "application/json",
+            },
+           
+        })
+
+        if (response.status !== 200) {
+            throw new Error(" cant not create User");
+        }
+
+        const user = await response.json();
+
+     
+       return user ; 
+ 
+}
+
+export async function updateUser(userId:number, data:any){
+    
+        const response = await fetch(`${USER_URL}/${userId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+        if (response.status !== 201) {
+            throw new Error(" cant not create User");
+        }
+        if(response.status === 201) {return true}
+        else {return false;}
+    
+}

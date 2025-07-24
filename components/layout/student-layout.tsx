@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { BookOpen, ChevronDown, ClipboardList, FileText, LogOut, Menu, Settings, Users } from "lucide-react"
+import { BookOpen, ChevronDown, ClipboardList, FileText, GraduationCap, LogOut, Menu, Settings, Users } from "lucide-react"
 import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
 
 interface NavItemProps {
@@ -54,6 +54,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const router = useRouter()
   const navItems = [
     { href: "/student/projets", icon: <BookOpen size={20} />, label: "Mes projets" },
+    { href: "/student/notes", icon: <GraduationCap size={20} />, label: "Mes notes" },
     // { href: "/student/groupes", icon: <Users size={20} />, label: "Mes groupes" },
     // { href: "/student/livrables", icon: <ClipboardList size={20} />, label: "Livrables" },
     // { href: "/student/rapports", icon: <FileText size={20} />, label: "Rapports" },

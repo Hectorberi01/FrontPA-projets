@@ -97,7 +97,13 @@ export default function ProjetsPage() {
             <div className="flex flex-col md:flex-row gap-4 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input placeholder="Rechercher un projet..." className="pl-10" />
+                <Input
+                  placeholder="Rechercher un projet..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
               </div>
               <div className="flex gap-2">
                 <DropdownMenu>
@@ -142,7 +148,12 @@ export default function ProjetsPage() {
                 </TableHeader>
                 <TableBody>
                   {/*{promotions.map((promotion) => (*/}
-                  {projects.map((projet) => (
+                  {projects
+                      .filter((projet) =>
+                        projet.name.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((projet) => (
+
                       <TableRow key={projet.id}>
                         <TableCell className="font-medium">{projet.name}</TableCell>
                         {/*<TableCell>{projet.name}</TableCell>*/}
