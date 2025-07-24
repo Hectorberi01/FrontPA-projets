@@ -39,10 +39,10 @@ export default function SettingsPage() {
                     {/*<Switch checked={darkMode} onCheckedChange={setDarkMode} />*/}
                     <ThemeSwitcher />
                 </div>
-                <div className="flex items-center justify-between border p-4 rounded-md">
-                    <span className="text-gray-700">Notifications</span>
-                    <Switch checked={notifications} onCheckedChange={setNotifications} />
-                </div>
+                {/*<div className="flex items-center justify-between border p-4 rounded-md">*/}
+                {/*    <span className="text-gray-700">Notifications</span>*/}
+                {/*    <Switch checked={notifications} onCheckedChange={setNotifications} />*/}
+                {/*</div>*/}
             </section>
 
             {/* Sécurité */}

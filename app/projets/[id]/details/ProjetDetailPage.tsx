@@ -279,7 +279,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                             </div>
                                             <div className="mt-4 flex justify-end">
                                                 <Button variant="outline" size="sm" asChild>
-                                                    <Link href={`http://localhost:3000/api/livrables/${livrable.id}/download`}>Télécharger le livrable</Link>
+                                                    <Link href={`http://localhost:3000/api/livrables/download?url=${livrable.fileUrl}`}>Télécharger le livrable</Link>
                                                 </Button>
                                             </div>
                                         </div>

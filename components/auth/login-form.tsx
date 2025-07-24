@@ -149,15 +149,15 @@ export function LoginForm() {
                 <span>Continuer avec Google</span>
               </Button>
 
-              <Button
-                  variant="outline"
-                  className="w-full flex items-center gap-2"
-                  onClick={() => handleOAuthLogin("microsoft")}
-                  disabled={isLoading}
-              >
-                <FaMicrosoft/>
-                <span>Continuer avec Microsoft</span>
-              </Button>
+              {/*<Button*/}
+              {/*    variant="outline"*/}
+              {/*    className="w-full flex items-center gap-2"*/}
+              {/*    onClick={() => handleOAuthLogin("microsoft")}*/}
+              {/*    disabled={isLoading}*/}
+              {/*>*/}
+              {/*  <FaMicrosoft/>*/}
+              {/*  <span>Continuer avec Microsoft</span>*/}
+              {/*</Button>*/}
             </div>
           </TabsContent>
 

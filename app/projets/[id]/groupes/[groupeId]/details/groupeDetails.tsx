@@ -235,7 +235,7 @@ export default function GroupeDetailsPage({ params }: PageProps) {
                                             </div>
                                             {livrable.fileUrl ? (
                                                 <Button variant="outline" size="sm" asChild>
-                                                    <Link href={`http://localhost:3000/api/livrables/${livrable.id}/download`}>Télécharger le livrable</Link>
+                                                    <Link href={`http://localhost:3000/api/livrables/download?url=${livrable.fileUrl}`}>Télécharger le livrable</Link>
                                                 </Button>
                                             ) : (
                                                 <Button variant="outline" size="sm" disabled>
