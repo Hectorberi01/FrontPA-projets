@@ -28,7 +28,7 @@ export default function GroupeDetailsPage({ params }: PageProps) {
     const [grilles, setGrilles] = useState<any[]>([]) // grilles liées à ce projet
     const [globalComment, setGlobalComment] = useState("")
     const [criteria, setCriteria] = useState<any[]>([]);
-const [modeNotation, setModeNotation] = useState<'gestion' | 'notation'>('gestion')
+    const [modeNotation, setModeNotation] = useState<'gestion' | 'notation'>('gestion')
 
     const [notationValidee, setNotationValidee] = useState(false)
     const [notes, setNotes] = useState<Record<

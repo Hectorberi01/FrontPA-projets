@@ -15,7 +15,7 @@ export default function AuthRedirectPage() {
 
         const user = userStr ? JSON.parse(decodeURIComponent(userStr)) : null;
 
-        if (user?.role.name === 'ADMIN' || user.role.name === 'Teacher') {
+        if (user?.role.name === 'ADMIN' || user?.role.name === 'Teacher') {
             router.push('/dashboard');
         } else {
             router.push('/student/projets');
