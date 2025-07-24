@@ -95,10 +95,10 @@ export default function PromotionsPage() {
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Filter size={16} />
-                      <span>Filtrer</span>
-                    </Button>
+                    {/*<Button variant="outline" className="flex items-center gap-2">*/}
+                    {/*  <Filter size={16} />*/}
+                    {/*  <span>Filtrer</span>*/}
+                    {/*</Button>*/}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>Toutes les promotions</DropdownMenuItem>

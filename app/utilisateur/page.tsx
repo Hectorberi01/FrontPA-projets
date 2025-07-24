@@ -82,10 +82,10 @@ const utilisateursFiltres = utilisateurs.filter((u: any) => {
                         <p className="text-gray-600 mt-1">Gérez tous les utilisateurs de la plateforme</p>
                     </div>
                     <div className="mt-4 md:mt-0 flex gap-2">
-                        <Button variant="outline" className="flex items-center gap-2 bg-transparent">
-                            <Upload className="h-4 w-4" />
-                            Importer
-                        </Button>
+                        {/*<Button variant="outline" className="flex items-center gap-2 bg-transparent">*/}
+                        {/*    <Upload className="h-4 w-4" />*/}
+                        {/*    Importer*/}
+                        {/*</Button>*/}
                         <Button asChild>
                             <Link href="/utilisateur/nouveau">
                                 <Plus className="mr-2 h-4 w-4" />
@@ -202,10 +202,10 @@ const utilisateursFiltres = utilisateurs.filter((u: any) => {
 
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                                <Button variant="outline">
-                                    <Download size={16} className="mr-2" />
-                                    Exporter
-                                </Button>
+                                {/*<Button variant="outline">*/}
+                                {/*    <Download size={16} className="mr-2" />*/}
+                                {/*    Exporter*/}
+                                {/*</Button>*/}
                             </div>
                         </div>
 
@@ -218,7 +218,7 @@ const utilisateursFiltres = utilisateurs.filter((u: any) => {
                                         <TableHead>Rôle</TableHead>
                                         <TableHead>Promotion</TableHead>
                                         <TableHead>Statut</TableHead>
-                                        <TableHead>Dernière connexion</TableHead>
+                                        {/*<TableHead>Dernière connexion</TableHead>*/}
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -276,7 +276,7 @@ const utilisateursFiltres = utilisateurs.filter((u: any) => {
                                                     </Badge>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{utilisateur.derniereConnexion}</TableCell>
+                                            {/*<TableCell>{utilisateur.derniereConnexion}</TableCell>*/}
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>

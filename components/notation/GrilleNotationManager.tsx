@@ -291,6 +291,7 @@ const handleUpdateGrille = async (grilleId: string) => {
                 title: "Succès",
                 description: "Critère ajouté avec succès"
             })
+            window.location.reload()
         } catch (error) {
             console.error('Error creating critere:', error)
             toast({

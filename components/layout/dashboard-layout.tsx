@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React, {useEffect} from "react"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -32,6 +32,7 @@ import {
 import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
 
 import {useAuth} from "@/hooks/authContext";
+import ThemeSwitcher from "@/components/ui/ThemeSwitcher";
 
 interface NavItemProps {
   href: string
@@ -66,6 +67,7 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const {logout} = useAuth()
   const closeMobileNav = () => setIsMobileNavOpen(false)
+  const [user, setUser] = useState<any>(null);
 
   const navItems = [
     { href: "/dashboard", icon: <Home size={20} />, label: "Tableau de bord" },
@@ -83,6 +85,12 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
       : []),
   ]
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
   const handleLogout = () => {
     logout();
     window.location.href = "/"; // redirection après déconnexion
@@ -128,6 +136,7 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
             </div>
 
             <div className="flex items-center gap-4">
+              <ThemeSwitcher />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
@@ -136,7 +145,7 @@ export function DashboardLayout({ children, userRole = "enseignant" }: Dashboard
                       <AvatarFallback>{userRole === "enseignant" ? "EN" : "ET"}</AvatarFallback>
                     </Avatar>
                     <span className="hidden md:inline">
-                      {userRole === "enseignant" ? "Prof. Dupont" : "Étudiant Martin"}
+                      {user?.role?.name === "TEACHER" ? user?.nom + " " +user?.prenom: ""}
                     </span>
                     <ChevronDown size={16} />
                   </Button>

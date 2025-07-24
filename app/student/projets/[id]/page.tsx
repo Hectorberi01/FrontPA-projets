@@ -457,7 +457,7 @@ export default function StudentProjetDetailPage({ params }: { params: Promise<{ 
                     <DialogTrigger asChild>
                         {estDansGroup && (
                             <div className="space-y-2">
-                              <Button onClick={handleOpen} disabled={estsoutenancepasse}>Rédiger un rappor</Button>
+                              <Button onClick={handleOpen} disabled={estsoutenancepasse}>Rédiger un rapport</Button>
 
                               {estsoutenancepasse && (
                                 <p className="text-sm text-red-500">

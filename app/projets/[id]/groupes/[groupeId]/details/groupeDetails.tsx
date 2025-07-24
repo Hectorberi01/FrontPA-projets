@@ -63,53 +63,6 @@ export default function GroupeDetailsPage({ params }: PageProps) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-              /*  const [grillesData, criteriaData] = await Promise.all([
-                    gradingApi.getProjectGrilles(id),
-                    gradingApi.getProjectCriteria(id)
-                ]);*/
-            // const fakeGrilles = [
-            //         {
-            //             id: "grille1",
-            //             titre: "Notation du livrable",
-            //             type: "livrable",
-            //             criteres: [
-            //                 { id: 1, nom: "Structure du code", poids: 50 },
-            //                 { id: 2, nom: "Lisibilité", poids: 50 },
-            //             ],
-            //             ponderationGlobale: 0.4,
-            //             validee: false,
-            //         },
-            //         {
-            //             id: "grille2",
-            //             titre: "Évaluation du rapport",
-            //             type: "rapport",
-            //             criteres: [
-            //                 { id: 3, nom: "Contenu", poids: 70 },
-            //                 { id: 4, nom: "Orthographe", poids: 30 },
-            //             ],
-            //             ponderationGlobale: 0.3,
-            //             validee: false,
-            //         },
-            //         {
-            //             id: "grille3",
-            //             titre: "Soutenance orale",
-            //             type: "soutenance",
-            //             criteres: [
-            //                 { id: 5, nom: "Clarté", poids: 60 },
-            //                 { id: 6, nom: "Maîtrise du sujet", poids: 40 },
-            //             ],
-            //             ponderationGlobale: 0.3,
-            //             validee: false,
-            //         },
-            //     ];
-
-            //     const fakeCriteria = fakeGrilles.flatMap(g => g.criteres);
-
-            //     setGrilles(fakeGrilles);
-            //     setCriteria(fakeCriteria);
-              //  setGrilles(grillesData);
-               // setCriteria(criteriaData);
-           
              const grillesData = await gradingApi.getProjectGrilles(id);
             setGrilles(grillesData);
             
