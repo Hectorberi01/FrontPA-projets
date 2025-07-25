@@ -212,21 +212,7 @@ export default function GroupeDetailsPage({ params }: PageProps) {
                                                 <CardTitle className="text-lg">{rapport.title}</CardTitle>
                                                 <CardDescription>{rapport.content}</CardDescription>
                                             </div>
-                                            <div className="flex gap-2">
-                                                {getGrillesByType('rapport').map(grille => (
-                                                    <Button
-                                                        key={grille.id}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            // Naviguer vers la grille de notation pour ce rapport
-                                                            window.open(`/notation/grille/${grille.id}?groupeId=${group.id}&rapportId=${rapport.id}`, '_blank')
-                                                        }}
-                                                    >
-                                                        Noter
-                                                    </Button>
-                                                ))}
-                                            </div>
+                                        
                                         </div>
                                     </CardHeader>
                                     <CardContent className="pt-0">
@@ -255,21 +241,7 @@ export default function GroupeDetailsPage({ params }: PageProps) {
                                                 <CardTitle className="text-lg">{livrable.name}</CardTitle>
                                                 <CardDescription>{livrable.description}</CardDescription>
                                             </div>
-                                            <div className="flex gap-2">
-                                                {getGrillesByType('livrable').map(grille => (
-                                                    <Button
-                                                        key={grille.id}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            // Naviguer vers la grille de notation pour ce livrable
-                                                            window.open(`/notation/grille/${grille.id}?groupeId=${group.id}&livrableId=${livrable.id}`, '_blank')
-                                                        }}
-                                                    >
-                                                        Noter
-                                                    </Button>
-                                                ))}
-                                            </div>
+                                            
                                         </div>
                                     </CardHeader>
                                     <CardContent className="pt-0">

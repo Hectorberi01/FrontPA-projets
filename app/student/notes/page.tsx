@@ -1,69 +1,86 @@
 'use client'
-import { StudentLayout } from "@/components/layout/student-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { GraduationCap, FileText, Eye } from "lucide-react"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { getPromotionByStudentId } from "@/lib/services/promotionService"
-import { useRouter } from "next/navigation"
-import { useAuth } from "@/hooks/authContext"
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/hooks/authContext'
+import { StudentLayout } from '@/components/layout/student-layout'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { GraduationCap } from 'lucide-react'
+
+interface Project {
+  id: number
+  name: string
+  description: string
+  noteFinale?: string
+}
+
+interface Promotion {
+  id: number
+  name: string
+  projects: Project[]
+}
 
 export default function StudentNotesPage() {
-  const [promotions, setPromotion] = useState<any>()
+  const [promotions, setPromotions] = useState<Promotion[]>([])
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
   const { user } = useAuth()
-
-  const fetchProjectsWithNotes = async () => {
-    try {
-      if (!user) {
-        router.push("/")
-        return
-      }
-
-      const userId = user.id
-      if (!userId) {
-        console.warn("User ID not found")
-        return
-      }
-
-      const response = await getPromotionByStudentId(userId)
-      console.log(response)
-      setPromotion(response || [])
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const PROMOTION_SERVER_URL = process.env.NEXT_PUBLIC_PROMOTION_URL || "http://localhost:3000/api/promotions";
+const BASE_URL = process.env.NEXT_PUBLIC_NOTATION_URL|| "http://localhost:3000/api/notations"; 
 
   useEffect(() => {
-    fetchProjectsWithNotes()
-  }, [])
+    const fetchData = async () => {
+      try {
+        if (!user?.id) return
+        
+        // Récupérer les promotions de l'étudiant
+        const response = await fetch(`${PROMOTION_SERVER_URL}/students/${user.id}`)
+        const data = await response.json()
+        
+        // Pour chaque projet, récupérer la note finale
+        const promotionsWithNotes = await Promise.all(
+          data.map(async (promo: any) => {
+            const projectsWithNotes = await Promise.all(
+              promo.projects.map(async (project: any) => {
+                // Trouver le groupe de l'étudiant dans ce projet
+                const userGroup = project.groups?.find((group: any) => 
+                  group.groupStudent?.some((gs: any) => gs.studentId === user.id)
+                )
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Terminé":
-        return "default"
-      case "En cours":
-        return "secondary"
-      default:
-        return "outline"
+                if (userGroup) {
+                  // Récupérer la notation
+                  const notationResponse = await fetch(
+                    `${BASE_URL}/${project.id}/groups/${userGroup.id}/notation`
+                  )
+                  const notation = await notationResponse.json()
+                  return {
+                    ...project,
+                    noteFinale: notation?.notationFinalisee?.noteFinale
+                  }
+                }
+                return project
+              })
+            )
+            return {
+              ...promo,
+              projects: projectsWithNotes
+            }
+          })
+        )
+        
+        setPromotions(promotionsWithNotes)
+      } catch (error) {
+        console.error("Erreur lors du chargement des notes:", error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    fetchData()
+  }, [user?.id])
 
   if (loading) {
     return (
       <StudentLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Chargement des notes...</p>
-            </div>
-          </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       </StudentLayout>
     )
@@ -72,142 +89,43 @@ export default function StudentNotesPage() {
   return (
     <StudentLayout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <GraduationCap className="mr-3 h-8 w-8 text-blue-600" />
-              Mes notes
-            </h1>
-            <p className="text-gray-600 mt-1">Consultez vos notes et évaluations pour tous vos projets</p>
-          </div>
+        <div className="flex items-center gap-3 mb-8">
+          <GraduationCap className="h-8 w-8 text-blue-600" />
+          <h1 className="text-2xl font-bold">Mes notes</h1>
         </div>
 
-        <div className="space-y-8">
-          {promotions?.map((promo: any) => (
-            <div key={promo.id}>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
-                {promo.promotion}
-              </h2>
-              
-              {promo.projects.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">Aucun projet disponible pour cette promotion</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {promo.projects
-                    .filter((project: any) => {
-                        return project.groups?.some((group: any) =>
-                        group.groupStudent?.some((gs: any) => gs.studentId === user?.id)
-                        )
-                    })
-                    .map((project: any) => {
-
-                    const studentId = user?.id
-                    let myGroup: any = null
-
-                    // Trouver le groupe de l'étudiant pour ce projet
-                    if (project.groups) {
-                      project.groups.forEach((group: any) => {
-                        if (group.groupStudent?.some((gs: any) => gs.studentId === studentId)) {
-                          myGroup = group
-                        }
-                      })
-                    }
-
-                    return (
-                      <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <CardTitle className="text-lg">{project.name}</CardTitle>
-                              <CardDescription className="mt-1">
-                                {promo.promotion}
-                              </CardDescription>
-                            </div>
-                            <Badge variant={getStatusColor(project.statut)}>
-                              {project.statut}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent>
-                          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                            {project.description}
-                          </p>
-
-                          {myGroup && (
-                            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                              <p className="text-sm font-medium text-blue-800">
-                                Mon groupe: {myGroup.name || `Groupe ${myGroup.id}`}
-                              </p>
-                              {myGroup.groupStudent && (
-                                <p className="text-xs text-blue-600 mt-1">
-                                  {myGroup.groupStudent.length} membre(s)
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          <div className="flex justify-between items-center mt-4 pt-4 border-t">
-                            {myGroup ? (
-                              <>
-                                <Badge 
-                                  variant="outline" 
-                                  className="text-green-600 border-green-600"
-                                >
-                                  Groupe assigné
-                                </Badge>
-                                <Button 
-                                  size="sm" 
-                                  asChild
-                                  className="bg-blue-600 hover:bg-blue-700"
-                                >
-                                  <Link href={`/student/notes/${project.id}/group/${myGroup.id}`}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Voir mes notes
-                                  </Link>
-                                </Button>
-                              </>
-                            ) : (
-                              <>
-                                <Badge variant="outline" className="text-gray-500">
-                                  Aucun groupe assigné
-                                </Badge>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  disabled
-                                  className="text-gray-400"
-                                >
-                                  Notes non disponibles
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )
-                  })}
+        {promotions.length === 0 ? (
+          <p>Aucune note disponible</p>
+        ) : (
+          <div className="space-y-6">
+            {promotions.map((promotion) => (
+              <div key={promotion.id}>
+                <h2 className="text-xl font-semibold mb-4">{promotion.name}</h2>
+                <div className="border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Projet</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead className="text-right">Note finale</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {promotion.projects.map((project) => (
+                        <TableRow key={project.id}>
+                          <TableCell className="font-medium">{project.name}</TableCell>
+                          <TableCell>{project.description}</TableCell>
+                          <TableCell className="text-right">
+                            {project.noteFinale ? `${project.noteFinale}/20` : 'Non noté'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {(!promotions || promotions.length === 0) && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune promotion trouvée</h3>
-              <p className="text-gray-500">
-                Vous n'êtes inscrit à aucune promotion pour le moment.
-              </p>
-            </CardContent>
-          </Card>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </StudentLayout>

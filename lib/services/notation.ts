@@ -71,11 +71,41 @@ export const gradingApi = {
     const response = await fetch(`${BASE_URL}/${projectId}/groups/${groupId}/notation/finalize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+      ...data,
+      notes: data.notes.map((note: { note: any; critereId: any; grilleId: any; studentId: any; etudiantId: any; }) => ({
+        ...note,
+        note: Number(note.note),
+        critereId: Number(note.critereId),
+        grilleId: String(note.grilleId),
+        studentId: note.studentId || note.etudiantId || null,
+        etudiantId: note.etudiantId || note.studentId || null
+      }))
+    })
+
     });
     return response.json();
   },
-
+// Dans votre fichier de service gradingApi
+async saveNotation(projectId: string, groupId: string, data: {
+  commentaireProjet?: string;
+  noteFinale: number;
+  studentId?: string;
+}): Promise<any> {
+  const response = await fetch(`${BASE_URL}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ projectId, groupId, ...data })
+  });
+  
+  if (!response.ok) {
+    throw new Error('Erreur lors de la sauvegarde de la notation');
+  }
+  
+  return response.json();
+},
   // Publier les notes (rendre visibles aux étudiants)
   publishGrades: async (projectId: string) => {
     const response = await fetch(`${BASE_URL}/${projectId}/publish`, {
