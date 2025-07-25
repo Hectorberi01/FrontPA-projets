@@ -75,6 +75,7 @@ interface NotationGroupeManagerProps {
   group: Group
   onNotationChange?: (notes: any) => void
 }
+// Place this inside your component function, after the state declarations:
 
 export default function NotationGroupeManager({ 
   projectId, 
@@ -90,34 +91,45 @@ export default function NotationGroupeManager({
   const [notationFinalisee, setNotationFinalisee] = useState(false)
   const debounceRef = useRef<Record<string, NodeJS.Timeout>>({})
 
-  // Récupère une note spécifique
-// Version améliorée :
+useEffect(() => {
+  console.log("Notations actuelles:", notations);
+  console.log("Group students:", group?.groupStudent);
+}, [notations, group]);
 const getNote = (grilleId: string, critereId: number, etudiantId?: number) => {
   return notations.find(n => 
     n.grilleId === grilleId && 
     n.critereId === critereId &&
     (etudiantId === undefined 
-      ? n.studentId === null && n.etudiantId === null
-      : n.studentId === etudiantId.toString() || n.etudiantId === etudiantId.toString())
+      ? (n.studentId === null || n.studentId === "null") // Note de groupe
+      : (n.studentId === etudiantId.toString() || n.studentId === String(etudiantId))) // Note individuelle
   );
 };
 
   // Met à jour ou ajoute une note
 const updateNote = (notation: Notation) => {
   setNotations(prev => {
+    // Clé unique basée sur les vrais identifiants
     const key = `${notation.grilleId}-${notation.critereId}-${notation.studentId ?? 'groupe'}`;
-    const existingIndex = prev.findIndex(n => 
-      `${n.grilleId}-${n.critereId}-${n.studentId ?? 'groupe'}` === key
-    );
     
-    return existingIndex >= 0 
-      ? prev.map((n, i) => i === existingIndex ? notation : n)
-      : [...prev, notation];
+    const existingIndex = prev.findIndex(n => {
+      const existingKey = `${n.grilleId}-${n.critereId}-${n.studentId ?? 'groupe'}`;
+      return existingKey === key;
+    });
+    
+    if (existingIndex >= 0) {
+      // Mettre à jour la note existante
+      const updated = [...prev];
+      updated[existingIndex] = { ...updated[existingIndex], ...notation };
+      return updated;
+    } else {
+      // Ajouter nouvelle note
+      return [...prev, notation];
+    }
   });
 };
 
  const debouncedSave = (notation: Notation) => {
-  const key = `${notation.grilleId}-${notation.critereId}-${notation.etudiantId ?? 'groupe'}`;
+  const key = `${notation.grilleId}-${notation.critereId}-${notation.studentId ?? 'groupe'}`;
   
   if (debounceRef.current[key]) {
     clearTimeout(debounceRef.current[key]);
@@ -133,7 +145,9 @@ const updateNote = (notation: Notation) => {
           critereId: notation.critereId,
           note: parseFloat(notation.note),
           commentaire: notation.commentaire ?? undefined,
-          studentId: notation.etudiantId ? Number(notation.etudiantId) : undefined  // Conversion en number ou undefined
+          studentId: notation.studentId && notation.studentId !== "null" 
+            ? Number(notation.studentId) 
+            : undefined
         }
       );
     } catch (error) {
@@ -161,9 +175,9 @@ const updateNote = (notation: Notation) => {
     grilleId,
     critereId,
     studentId: studentId !== undefined ? studentId.toString() : null,
-    etudiantId: studentId !== undefined ? studentId.toString() : null,
+    etudiantId: studentId !== undefined ? studentId.toString() : null, // Garder cohérence
     note: (note !== undefined ? note : existing?.note ? parseFloat(existing.note) : 0).toString(),
-    commentaire: commentaire ?? existing?.commentaire ?? ""
+    commentaire: commentaire !== undefined ? commentaire : existing?.commentaire ?? ""
   };
   
   updateNote(updatedNotation);

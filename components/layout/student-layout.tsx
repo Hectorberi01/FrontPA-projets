@@ -18,6 +18,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { BookOpen, ChevronDown, ClipboardList, FileText, GraduationCap, LogOut, Menu, Settings, Users } from "lucide-react"
 import ProtectedRoute from "@/components/protectedRoute/ProtectedRoute";
+import { useAuth } from "@/hooks/authContext"
+import ThemeSwitcher from "../ui/ThemeSwitcher"
 
 interface NavItemProps {
   href: string
@@ -51,6 +53,8 @@ export function StudentLayout({ children }: StudentLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [user, setUser] = useState<any | null>(null)
   const closeMobileNav = () => setIsMobileNavOpen(false)
+    const {logout} = useAuth()
+  
   const router = useRouter()
   const navItems = [
     { href: "/student/projets", icon: <BookOpen size={20} />, label: "Mes projets" },
@@ -73,6 +77,10 @@ export function StudentLayout({ children }: StudentLayoutProps) {
     getUser();
   }, [])
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/"; // redirection après déconnexion
+  };
 
   return (
     <ProtectedRoute roles={['STUDENT']}>
@@ -114,6 +122,7 @@ export function StudentLayout({ children }: StudentLayoutProps) {
             </div>
 
             <div className="flex items-center gap-4">
+               <ThemeSwitcher />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
@@ -126,30 +135,30 @@ export function StudentLayout({ children }: StudentLayoutProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  {/*<DropdownMenuLabel>Mon compte</DropdownMenuLabel>*/}
-                  {/*<DropdownMenuSeparator />*/}
-                  {/*<DropdownMenuItem asChild>*/}
-                  {/*  <Link href="/student/profile" className="cursor-pointer flex items-center gap-2">*/}
-                  {/*    <Avatar className="h-4 w-4">*/}
-                  {/*      <AvatarImage src="/placeholder.svg?height=16&width=16" alt="Avatar" />*/}
-                  {/*      <AvatarFallback>ET</AvatarFallback>*/}
-                  {/*    </Avatar>*/}
-                  {/*    <span>Profil</span>*/}
-                  {/*  </Link>*/}
-                  {/*</DropdownMenuItem>*/}
-                  {/*<DropdownMenuItem asChild>*/}
-                  {/*  <Link href="/student/settings" className="cursor-pointer flex items-center gap-2">*/}
-                  {/*    <Settings size={16} />*/}
-                  {/*    <span>Paramètres</span>*/}
-                  {/*  </Link>*/}
-                  {/*</DropdownMenuItem>*/}
-                  {/*<DropdownMenuSeparator />*/}
-                  <DropdownMenuItem className="cursor-pointer flex items-center gap-2 text-red-600">
+                   <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/student/profile" className="cursor-pointer flex items-center gap-2">
+                      <Avatar className="h-4 w-4">
+                        <AvatarImage src="/placeholder.svg?height=16&width=16" alt="Avatar" />
+                        <AvatarFallback>ET</AvatarFallback>
+                      </Avatar>
+                      <span>Profil</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/student/settings" className="cursor-pointer flex items-center gap-2">
+                      <Settings size={16} />
+                      <span>Paramètres</span>
+                    </Link>
+                  </DropdownMenuItem>
+               <DropdownMenuSeparator />
+                 
+                  <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="cursor-pointer flex items-center gap-2 text-red-600">
                     <LogOut size={16} />
-                    <span onClick={()=>{
-                      localStorage.removeItem("user");
-                      router.push("/");
-                    }}>Déconnexion</span>
+                    <span>Déconnexion</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
