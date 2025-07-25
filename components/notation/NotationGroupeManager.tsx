@@ -128,7 +128,7 @@ const updateNote = (notation: Notation) => {
   });
 };
 
- const debouncedSave = (notation: Notation) => {
+const debouncedSave = useCallback((notation: Notation, isNewNote: boolean = false) => {
   const key = `${notation.grilleId}-${notation.critereId}-${notation.studentId ?? 'groupe'}`;
   
   if (debounceRef.current[key]) {
@@ -137,14 +137,16 @@ const updateNote = (notation: Notation) => {
   
   debounceRef.current[key] = setTimeout(async () => {
     try {
-      await gradingApi.saveNoteForCritere(
+      const apiMethod = isNewNote ? 'saveNoteForCritere' : 'updateNoteForCritere';
+      
+      await gradingApi[apiMethod](
         projectId, 
         groupId, 
         {
           grilleId: notation.grilleId,
           critereId: notation.critereId,
           note: parseFloat(notation.note),
-          commentaire: notation.commentaire ?? undefined,
+          commentaire: notation.commentaire || undefined,
           studentId: notation.studentId && notation.studentId !== "null" 
             ? Number(notation.studentId) 
             : undefined
@@ -159,9 +161,9 @@ const updateNote = (notation: Notation) => {
       });
     }
   }, 800);
-};
+}, [projectId, groupId]);
 
- const handleNoteChange = (
+const handleNoteChange = (
   grilleId: string,
   critereId: number,
   note?: number,
@@ -169,19 +171,20 @@ const updateNote = (notation: Notation) => {
   studentId?: number
 ) => {
   const existing = getNote(grilleId, critereId, studentId);
+  const isNewNote = !existing; // Déterminer si c'est une nouvelle note
   
   const updatedNotation: Notation = {
     id: existing?.id || crypto.randomUUID(),
     grilleId,
     critereId,
     studentId: studentId !== undefined ? studentId.toString() : null,
-    etudiantId: studentId !== undefined ? studentId.toString() : null, // Garder cohérence
+    etudiantId: studentId !== undefined ? studentId.toString() : null,
     note: (note !== undefined ? note : existing?.note ? parseFloat(existing.note) : 0).toString(),
     commentaire: commentaire !== undefined ? commentaire : existing?.commentaire ?? ""
   };
   
   updateNote(updatedNotation);
-  debouncedSave(updatedNotation);
+  debouncedSave(updatedNotation, isNewNote);
   
   if (onNotationChange) {
     onNotationChange(notations);
@@ -298,39 +301,12 @@ const finaliserNotation = async () => {
   }
 
   try {
-    // Note globale du groupe
-    const noteFinaleGroupe = calcNoteGlobale();
+    await sauvegarderNotationIntelligente();
     
-    // Sauvegarder la note de groupe
-    const payloadGroupe = {
-      commentaireProjet: commentaireProjet || undefined,
-      noteFinale: parseFloat(noteFinaleGroupe.toFixed(2)),
-      studentId: undefined // null pour le groupe
-    };
-
-    await gradingApi.saveNotation(projectId, groupId, payloadGroupe);
-
-    // Optionnel : Sauvegarder des notes individuelles si nécessaire
-    if (group?.groupStudent) {
-      for (const groupStudent of group.groupStudent) {
-        const noteIndividuelle = calcNoteIndividuelle(groupStudent.studentId);
-        
-        if (noteIndividuelle > 0) {
-          const payloadEtudiant = {
-            commentaireProjet: `Note individuelle pour ${groupStudent.student.prenom} ${groupStudent.student.nom}`,
-            noteFinale: parseFloat(noteIndividuelle.toFixed(2)),
-            studentId: groupStudent.studentId.toString()
-          };
-          
-          await gradingApi.saveNotation(projectId, groupId, payloadEtudiant);
-        }
-      }
-    }
-
     setNotationFinalisee(true);
     toast({
       title: "Succès",
-      description: "Notation finalisée et sauvegardée"
+      description: "Notation finalisée et sauvegardée "
     });
   } catch (error) {
     console.error('Erreur lors de la finalisation:', error);
@@ -340,6 +316,28 @@ const finaliserNotation = async () => {
       variant: "destructive"
     });
   }
+};
+const previewMoyennes = () => {
+  console.log("=== APERÇU DES MOYENNES ===");
+  
+  grilles.forEach(grille => {
+    console.log(`\nGrille: ${grille.titre}`);
+    
+    if (group?.groupStudent) {
+      const moyennes = group.groupStudent.map(student => ({
+        student: `${student.student.prenom} ${student.student.nom}`,
+        moyenne: calcMoyenneEtudiantPourGrille(grille, student.studentId)
+      }));
+      
+      console.log("Moyennes par étudiant:", moyennes);
+      
+      if (tousEtudiantsMemeMoyenne(grille)) {
+        console.log("✅ Moyennes identiques -> Envoi groupé");
+      } else {
+        console.log("⚠️ Moyennes différentes -> Envoi individuel");
+      }
+    }
+  });
 };
 // Fonction pour calculer la note d'un étudiant spécifique
 const calcNoteIndividuelle = (studentId: number) => {
@@ -444,6 +442,92 @@ const calcMoyenneCritereIndividuel = (grilleId: string, critereId: number) => {
       default: return type;
     }
   }
+const calcMoyenneEtudiantPourGrille = (grille: Grille, studentId: number) => {
+  return grille.criteres.reduce((total, critere) => {
+    if (critere.typeEvaluation === "groupe") {
+      // Pour les critères de groupe, même note pour tous
+      const note = getNote(grille.id, critere.id);
+      if (note) {
+        const noteValue = typeof note.note === 'string' ? parseFloat(note.note) : note.note;
+        return total + noteValue * (critere.poids / 100);
+      }
+    } else {
+      // Pour les critères individuels
+      const note = getNote(grille.id, critere.id, studentId);
+      if (note) {
+        const noteValue = typeof note.note === 'string' ? parseFloat(note.note) : note.note;
+        return total + noteValue * (critere.poids / 100);
+      }
+    }
+    return total;
+  }, 0);
+};
+
+
+const tousEtudiantsMemeMoyenne = (grille: Grille) => {
+  if (!group?.groupStudent || group.groupStudent.length <= 1) return true;
+  
+  const moyennes = group.groupStudent.map(student => 
+    calcMoyenneEtudiantPourGrille(grille, student.studentId)
+  );
+  
+  // Vérifier si toutes les moyennes sont identiques (avec tolérance de 0.01)
+  const premiereMoyenne = moyennes[0];
+  return moyennes.every(moyenne => Math.abs(moyenne - premiereMoyenne) < 0.01);
+};
+
+// Fonction pour sauvegarder intelligemment selon les moyennes
+const sauvegarderNotationIntelligente = async () => {
+  try {
+    for (const grille of grilles) {
+      if (tousEtudiantsMemeMoyenne(grille)) {
+        // Même moyenne pour tous -> envoyer une seule note avec l'ID du groupe
+        const moyenneCommune = calcMoyenneEtudiantPourGrille(grille, group.groupStudent[0].studentId);
+        
+        const payloadGroupe = {
+          grilleId: grille.id,
+          noteFinale: parseFloat(moyenneCommune.toFixed(2)),
+          studentId: undefined, // undefined pour le groupe
+          commentaire: commentairesGlobaux[grille.id] || undefined
+        };
+        
+        await gradingApi.saveNotation(projectId, groupId, payloadGroupe);
+        
+        console.log(`Grille ${grille.titre}: Note commune ${moyenneCommune.toFixed(2)} envoyée pour le groupe`);
+        
+      } else {
+        // Moyennes différentes -> envoyer une note par étudiant
+        for (const groupStudent of group.groupStudent) {
+          const moyenneIndividuelle = calcMoyenneEtudiantPourGrille(grille, groupStudent.studentId);
+          
+          const payloadEtudiant = {
+            noteFinale: parseFloat(moyenneIndividuelle.toFixed(2)),
+            studentId: groupStudent.studentId.toString(),
+            commentaireProjet: `Note individuelle pour ${groupStudent.student.prenom} ${groupStudent.student.nom}`
+          };
+          
+          await gradingApi.saveNotation(projectId, groupId, payloadEtudiant);
+        }
+        
+        console.log(`Grille ${grille.titre}: Notes individuelles envoyées (moyennes différentes)`);
+      }
+    }
+    
+    // Sauvegarder la note finale globale avec le commentaire projet
+    const noteFinaleGlobale = calcNoteGlobale();
+    const payloadFinal = {
+      commentaireProjet: commentaireProjet || undefined,
+      noteFinale: parseFloat(noteFinaleGlobale.toFixed(2)),
+      studentId: undefined // undefined pour la note de groupe
+    };
+    
+    await gradingApi.saveNotation(projectId, groupId, payloadFinal);
+    
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde intelligente:', error);
+    throw error;
+  }
+};
 
   const getGrillesByType = (type: string) => {
     return grilles.filter(g => g.type === type);

@@ -202,5 +202,39 @@ async saveNotation(projectId: string, groupId: string, data: {
             console.error('Erreur:', error);
             throw error;
         }
+    },
+ async updateNoteForCritere(
+    projectId: string, 
+    groupId: string, 
+    data: {
+      grilleId: string,
+      critereId: number,
+      note: number,
+      commentaire?: string,
+      studentId?: number
     }
+  ) {
+    const response = await fetch(`${BASE_URL}/${projectId}/groups/${groupId}/notes/critere`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...data,
+        studentId: data.studentId?.toString()
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la mise à jour de la note');
+    }
+
+    return response.json();
+  }
+
+,
+
+
+
+
 }
