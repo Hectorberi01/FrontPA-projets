@@ -47,7 +47,7 @@ export function LoginForm() {
       const response = await loginData(data)
       if (response !== null) {
         login(response.user, response.token)
-          if (response.user.role.name === "Teacher".toUpperCase() || response.user.role.name === "ADMIN") {
+          if (response.user?.role.name === "Teacher".toUpperCase() || response.user.role.name === "ADMIN") {
             router.push("/dashboard");
           } else if (response.user.role.name === "student".toUpperCase()) {
             router.push("/student/projets");
@@ -149,15 +149,15 @@ export function LoginForm() {
                 <span>Continuer avec Google</span>
               </Button>
 
-              <Button
-                  variant="outline"
-                  className="w-full flex items-center gap-2"
-                  onClick={() => handleOAuthLogin("microsoft")}
-                  disabled={isLoading}
-              >
-                <FaMicrosoft/>
-                <span>Continuer avec Microsoft</span>
-              </Button>
+              {/*<Button*/}
+              {/*    variant="outline"*/}
+              {/*    className="w-full flex items-center gap-2"*/}
+              {/*    onClick={() => handleOAuthLogin("microsoft")}*/}
+              {/*    disabled={isLoading}*/}
+              {/*>*/}
+              {/*  <FaMicrosoft/>*/}
+              {/*  <span>Continuer avec Microsoft</span>*/}
+              {/*</Button>*/}
             </div>
           </TabsContent>
 

@@ -20,10 +20,10 @@ export default function RootLayout({
 }) {
   return (
 
-    <html lang="fr" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="fr" suppressHydrationWarning className="h-full">
+      <body className={inter.className + " h-full bg-white dark:bg-gray-900"}>
       <AuthProvider>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
         </ThemeProvider>

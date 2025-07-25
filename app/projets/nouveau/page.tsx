@@ -171,15 +171,23 @@ const validateProject = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="soutenanceDate" className="block font-medium">Date de soutenance</label>
-                                <input id="soutenanceDate" name="soutenanceDate" type="datetime-local"
-                                       value={project.soutenanceDate ?? ''} onChange={handleChange}
+                                <input id="soutenanceDate"
+                                       name="soutenanceDate"
+                                       type="datetime-local"
+                                       value={project.soutenanceDate ?? ''}
+                                       onChange={handleChange}
+                                       min={new Date().toISOString().slice(0,16)}
                                        className="w-full border p-2"/>
                             </div>
 
                             <div>
                                 <label htmlFor="soutenanceDate" className="block font-medium">Deadline</label>
-                                <input id="deadline" name="deadline" type="datetime-local"
-                                       value={project.deadline ?? ''} onChange={handleChange}
+                                <input id="deadline"
+                                       name="deadline"
+                                       type="datetime-local"
+                                       value={project.deadline ?? ''}
+                                       min={new Date().toISOString().slice(0,16)}
+                                       onChange={handleChange}
                                        className="w-full border p-2"
                                        required
                                 />
@@ -190,14 +198,22 @@ const validateProject = () => {
                             <div>
                                 <label htmlFor="minStudents" className="block font-medium">Min étudiant par
                                     groupe</label>
-                                <input id="minStudents" name="minStudents" type="number" value={project.minStudents}
+                                <input id="minStudents"
+                                       name="minStudents"
+                                       type="number"
+                                       value={project.minStudents}
+                                       min={1}
                                        onChange={handleChange} className="w-full border p-2"/>
                             </div>
 
                             <div>
                                 <label htmlFor="maxStudents" className="block font-medium">Max étudiant par
                                     groupe</label>
-                                <input id="maxStudents" name="maxStudents" type="number" value={project.maxStudents}
+                                <input id="maxStudents"
+                                       name="maxStudents"
+                                       type="number"
+                                       value={project.maxStudents}
+                                       min={1}
                                        onChange={handleChange} className="w-full border p-2"/>
                             </div>
                         </div>

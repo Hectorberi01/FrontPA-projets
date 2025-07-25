@@ -31,6 +31,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
@@ -48,7 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.log(e);
             localStorage.removeItem('user');
             localStorage.removeItem('token');
+        }finally {
+            setLoading(false);
         }
+
     }, []);
 
     const login = (userData:any, authToken:string) => {
@@ -64,6 +68,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
     };
+
+    if (loading) {
+        return null
+    }
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout }}>

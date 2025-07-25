@@ -31,12 +31,12 @@ export default function NouvellePromotionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) {
-      console.error("No file selected")
       return
     }
     setIsLoading(true)
 
-    try {      
+    try {
+      console.log("promotion", promotion)
       const response = await createPromotion(promotion, file);
   
       if (response) {
@@ -102,6 +102,7 @@ export default function NouvellePromotionPage() {
                       placeholder="Ex: 2023-09-01" 
                       required 
                       type="date"
+                      min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => {
                           setPromotion((prev) => ({
                             ...prev,
@@ -118,9 +119,10 @@ export default function NouvellePromotionPage() {
                       id="annee" 
                       value={promotion?.startYear ? 
                       new Date(promotion.endYear).toISOString().split("T")[0] : ""} 
-                      placeholder="Ex: 2024-09-01" 
+                      placeholder="Ex: 2024-09-01"
                       required 
                       type="date"
+                      min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => {
                         setPromotion((prev) => ({
                           ...prev,

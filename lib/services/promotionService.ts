@@ -15,13 +15,13 @@ export async function createPromotion(promotionData : CreatePromotion, file: Fil
         formData.append("promotion", JSON.stringify(promotionData));
         formData.append("file", file);
         
-        const response = await fetch(`${PROMOTION_SERVER_URL}/create`, {
+        const response = await fetch(`${PROMOTION_SERVER_URL}`, {
             method: "POST",
             body: formData,
         });
 
         if (! response.ok) {
-            throw new Error(`Error: ${response.statusText}`);
+            console.log(`Error: ${response.statusText}`);
         }
         return response.json();
 

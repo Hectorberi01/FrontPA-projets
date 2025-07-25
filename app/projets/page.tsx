@@ -108,11 +108,11 @@ export default function ProjetsPage() {
               <div className="flex gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <Filter size={16} />
-                      <span>Filtrer</span>
-                      <ChevronDown size={16} />
-                    </Button>
+                    {/*<Button variant="outline" className="flex items-center gap-2">*/}
+                    {/*  <Filter size={16} />*/}
+                    {/*  <span>Filtrer</span>*/}
+                    {/*  <ChevronDown size={16} />*/}
+                    {/*</Button>*/}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem>Tous les projets</DropdownMenuItem>

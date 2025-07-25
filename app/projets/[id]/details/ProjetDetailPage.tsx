@@ -183,7 +183,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                         <FileText className="h-5 w-5 text-gray-500"/>
                                         <span>Rapports</span>
                                     </div>
-                                    <span className="font-medium">{projets?.rapports?.length ?? 0}</span>
+                                    <span className="font-medium">{projets?.reports?.length ?? 0}</span>
                                 </div>
                                 <div className="flex items-center justify-between py-2">
                                     <div className="flex items-center gap-2">
@@ -218,14 +218,14 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                     <CardTitle>Groupes</CardTitle>
                                     <CardDescription>Liste des groupes du projet</CardDescription>
                                 </div>
-                                <Button asChild>
-                                    {projets?.id && (
-                                        <Link href={`/projets/${projets.id}/groupes/nouveau`}>
-                                            <Edit className="mr-2 h-4 w-4" />
-                                            Nouveau grouper
-                                        </Link>
-                                    )}
-                                </Button>
+                                {/*<Button asChild>*/}
+                                {/*    {projets?.id && (*/}
+                                {/*        <Link href={`/projets/${projets.id}/groupes/nouveau`}>*/}
+                                {/*            <Edit className="mr-2 h-4 w-4" />*/}
+                                {/*            Nouveau groupe*/}
+                                {/*        </Link>*/}
+                                {/*    )}*/}
+                                {/*</Button>*/}
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -279,7 +279,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                             </div>
                                             <div className="mt-4 flex justify-end">
                                                 <Button variant="outline" size="sm" asChild>
-                                                    <Link href={`http://localhost:3000/api/livrables/${livrable.id}/download`}>Télécharger le livrable</Link>
+                                                    <Link href={`http://localhost:3000/api/livrables/download?url=${livrable.fileUrl}`}>Télécharger le livrable</Link>
                                                 </Button>
                                             </div>
                                         </div>
