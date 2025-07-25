@@ -33,7 +33,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_NOTATION_URL|| "http://localhost:3000/a
         // Récupérer les promotions de l'étudiant
         const response = await fetch(`${PROMOTION_SERVER_URL}/students/${user.id}`)
         const data = await response.json()
-        
+        console.log("data", data)
         // Pour chaque projet, récupérer la note finale
         const promotionsWithNotes = await Promise.all(
           data.map(async (promo: any) => {

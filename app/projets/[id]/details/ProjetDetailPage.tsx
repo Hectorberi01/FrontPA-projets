@@ -44,22 +44,24 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
     }, [projets]);
 
     const handleRunSimilarityCheck = async () => {
+        console.log("Run simulation");
         try {
             const response = await similarityCheck(parseInt(projectId))
+            console.log("response", response)
             if(response){
                 Swal.fire({
                     title: "Analyse fini avec success",
                     icon: "success",
                     draggable: true
                 });
-                window.location.reload()
+                //window.location.reload()
             }else {
                 Swal.fire({
                     title: "errer",
                     icon: "error",
                     draggable: true
                 });
-                window.location.reload()
+                //window.location.reload()
             }
         } catch (err) {
             console.error(err);
@@ -169,14 +171,14 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                                         <Users className="h-5 w-5 text-gray-500" />
                                         <span>Groupes</span>
                                     </div>
-                                    <span className="font-medium">{projets?.groups.length}</span>
+                                    <span className="font-medium">{projets?.groups?.length}</span>
                                 </div>
                                 <div className="flex items-center justify-between py-2 border-b">
                                     <div className="flex items-center gap-2">
                                         <ClipboardList className="h-5 w-5 text-gray-500"/>
                                         <span>Livrables</span>
                                     </div>
-                                    <span className="font-medium">{projets?.livrables.length}</span>
+                                    <span className="font-medium">{projets?.livrables?.length}</span>
                                 </div>
                                 <div className="flex items-center justify-between py-2 border-b">
                                     <div className="flex items-center gap-2">
@@ -439,17 +441,25 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                     <TabsContent value="section-triche" className="mt-6">
                         <CardContent>
                         <Card>
-                            <CardHeader>
+                            <CardHeader className="flex items-center justify-between">
+                                <div>
                                     <CardTitle>Cohérence entre les livrables</CardTitle>
                                     <CardDescription>
                                         Vérifier s'il y a un groupe qui a copié sur un autre
                                     </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    {(!projets?.similarity?.comparisons || projets.similarity.comparisons.length === 0) ? (
-                                        <div className="text-center py-6">
-                                            <p className="mb-4">Aucune comparaison n'a encore été effectuée.</p>
-                                            <button
+                                </div>
+                                <button
+                                    onClick={handleRunSimilarityCheck}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                    Lancer l'analyse de similarité
+                                </button>
+                            </CardHeader>
+                            <CardContent>
+                                {(!projets?.similarity?.comparisons || projets.similarity.comparisons.length === 0) ? (
+                                    <div className="text-center py-6">
+                                        <p className="mb-4">Aucune comparaison n'a encore été effectuée.</p>
+                                        <button
                                                 onClick={handleRunSimilarityCheck}
                                                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                             >
@@ -508,7 +518,7 @@ export default function ProjetDetailPage({projectId}: ProjectDetailsPageProps ) 
                     <div>
                         <CardTitle>Notation</CardTitle>
                     </div>
-                   
+
                     </CardHeader>
                     <CardContent>
                     {/* Section des grilles existantes */}
